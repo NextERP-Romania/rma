@@ -91,6 +91,7 @@ class SaleOrderLineRmaWizard(models.TransientModel):
     uom_category_id = fields.Many2one(
         comodel_name="uom.category",
         related="product_id.uom_id.category_id",
+        readonly="1",
     )
     quantity = fields.Float(
         string="Quantity",
@@ -102,6 +103,8 @@ class SaleOrderLineRmaWizard(models.TransientModel):
         string="Unit of Measure",
         domain="[('category_id', '=', uom_category_id)]",
         required=True,
+        compute="_compute_move_id",
+        store=True,
     )
     allowed_picking_ids = fields.Many2many(
         comodel_name="stock.picking", compute="_compute_allowed_picking_ids"
@@ -113,10 +116,10 @@ class SaleOrderLineRmaWizard(models.TransientModel):
     )
     move_id = fields.Many2one(comodel_name="stock.move", compute="_compute_move_id")
     operation_id = fields.Many2one(
-        comodel_name="rma.operation",
-        string="Requested operation",
+        comodel_name="rma.operation", string="Requested operation", required=1
     )
     description = fields.Text()
+    image = fields.Image("Image", max_width=1920, max_height=1920)
 
     @api.onchange("product_id")
     def onchange_product_id(self):
@@ -134,6 +137,7 @@ class SaleOrderLineRmaWizard(models.TransientModel):
                     )
                 )
             record.move_id = move_id
+            record.uom_id = record.move_id.product_uom
 
     @api.depends("order_id")
     def _compute_allowed_product_ids(self):
@@ -165,4 +169,5 @@ class SaleOrderLineRmaWizard(models.TransientModel):
             "product_uom": self.uom_id.id,
             "operation_id": self.operation_id.id,
             "description": self.description,
+            "image": self.image,
         }

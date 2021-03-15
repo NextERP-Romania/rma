@@ -7,6 +7,11 @@
         <field name="model">rma</field>
         <field name="inherit_id" ref="rma.rma_view_form" />
         <field name="arch" type="xml">
+            <notebook position="inside">
+                <page string="Image" name="image">
+                    <field name="image" widget="image" class="oe_avatar" />
+                </page>
+            </notebook>
             <field name="partner_invoice_id" position="after">
                 <field name="order_id" options="{'no_create': True}" />
             </field>

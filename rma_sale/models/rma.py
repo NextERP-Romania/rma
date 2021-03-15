@@ -33,6 +33,8 @@ class Rma(models.Model):
     )
     product_id = fields.Many2one(domain="[('id', 'in', allowed_product_ids)]")
 
+    image = fields.Image("Image", max_width=1920, max_height=1920)
+
     @api.depends("partner_id", "order_id")
     def _compute_allowed_picking_ids(self):
         domain = [("state", "=", "done"), ("picking_type_id.code", "=", "outgoing")]

@@ -26,7 +26,9 @@
                             />
                             <field name="allowed_picking_ids" invisible="1" />
                             <field name="picking_id" options="{'no_create': True}" />
-                            <field name="operation_id" />
+                            <field name="operation_id" options="{'no_create': True}" />
+                            <field name="description" />
+                            <field name="image" />
                         </tree>
                     </field>
                 </group>

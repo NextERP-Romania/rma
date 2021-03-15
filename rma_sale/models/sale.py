@@ -41,6 +41,9 @@ class SaleOrder(models.Model):
                     "quantity": data["quantity"],
                     "uom_id": data["uom"].id,
                     "picking_id": data["picking"] and data["picking"].id,
+                    "operation_id": self.env["rma.operation"]
+                    .search([("id", ">", -1)], order="id", limit=1)
+                    .id,
                 },
             )
             for data in self.get_delivery_rma_data()
