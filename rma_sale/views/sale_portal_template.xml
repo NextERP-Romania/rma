@@ -82,6 +82,7 @@
                                         <th class="text-right">Quantity</th>
                                         <th class="text-left">Delivery</th>
                                         <th class="text-left">Requested operation</th>
+                                         <th class="text-left">Image</th> 
                                         <th name="portal_rma_button_desc" />
                                     </tr>
                                 </thead>
@@ -153,6 +154,11 @@
                                                         </t>
                                                     </select>
                                                 </td>
+                                                 <td>
+                                                        <input type="file"
+                                                        class="form-control-file s_website_form_input"
+                                                        t-attf-name="#{data_index}-image"   />
+                                                </td> 
                                                 <td>
                                                     <button
                                                         class="btn btn-primary fa fa-comments"

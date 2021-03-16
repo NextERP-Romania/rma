@@ -122,6 +122,7 @@ class SaleOrderLine(models.Model):
                         "quantity": qty,
                         "uom": move.product_uom,
                         "picking": move.picking_id,
+                        "image":False,
                     }
                 )
         else:
@@ -131,6 +132,7 @@ class SaleOrderLine(models.Model):
                     "quantity": self.qty_delivered,
                     "uom": self.product_uom,
                     "picking": False,
+                    "image":False,
                 }
             )
         return data
