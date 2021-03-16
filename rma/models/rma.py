@@ -10,41 +10,31 @@ from odoo.tools import html2plaintext
 
 from odoo.addons.stock.models.stock_move import PROCUREMENT_PRIORITIES
 
-
-class Rma(models.Model):
-    _name = "rma"
+class RmaGroup(models.Model):
+    _name = "rma.group"
     _description = "RMA"
-    _order = "date desc, priority"
+    _order = "date desc"
     _inherit = ["mail.thread", "portal.mixin", "mail.activity.mixin"]
-
-    def _domain_location_id(self):
-        rma_loc = self.env["stock.warehouse"].search([]).mapped("rma_loc_id")
-        return [("id", "child_of", rma_loc.ids)]
-
-    # General fields
     sent = fields.Boolean()
     name = fields.Char(
         string="Name",
         index=True,
-        readonly=True,
-        states={"draft": [("readonly", False)]},
+#        readonly=True,
+#        states={"draft": [("readonly", False)]},
         copy=False,
         default=lambda self: _("New"),
     )
     origin = fields.Char(
         string="Source Document",
-        states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
+ #       states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
         help="Reference of the document that generated this RMA.",
     )
     date = fields.Datetime(
         default=lambda self: fields.Datetime.now(),
         index=True,
         required=True,
-        readonly=True,
-        states={"draft": [("readonly", False)]},
-    )
-    deadline = fields.Date(
-        states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
+#        readonly=True,
+#        states={"draft": [("readonly", False)]},
     )
     user_id = fields.Many2one(
         comodel_name="res.users",
@@ -52,32 +42,32 @@ class Rma(models.Model):
         index=True,
         default=lambda self: self.env.user,
         tracking=True,
-        states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
+#        states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
     )
     team_id = fields.Many2one(
         comodel_name="rma.team",
         string="RMA team",
         index=True,
-        states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
+#        states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
     )
     company_id = fields.Many2one(
         comodel_name="res.company",
         default=lambda self: self.env.company,
-        states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
+ #       states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
     )
     partner_id = fields.Many2one(
         string="Customer",
         comodel_name="res.partner",
-        readonly=True,
-        states={"draft": [("readonly", False)]},
+    #    readonly=True,
+#        states={"draft": [("readonly", False)]},
         index=True,
         tracking=True,
     )
     partner_invoice_id = fields.Many2one(
         string="Invoice Address",
         comodel_name="res.partner",
-        readonly=True,
-        states={"draft": [("readonly", False)]},
+   #     readonly=True,
+#        states={"draft": [("readonly", False)]},
         domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]",
         help="Refund address for current RMA.",
     )
@@ -91,11 +81,101 @@ class Rma(models.Model):
         domain="["
         "    ('state', '=', 'done'),"
         "    ('picking_type_id.code', '=', 'outgoing'),"
-        "    ('partner_id', 'child_of', commercial_partner_id),"
+#        "    ('partner_id', 'child_of', commercial_partner_id),"
         "]",
-        readonly=True,
-        states={"draft": [("readonly", False)]},
+  #      readonly=True,
+#        states={"draft": [("readonly", False)]},
     )
+    procurement_group_id = fields.Many2one(
+        comodel_name="procurement.group",
+        string="Procurement group",
+ #       readonly=True,
+ #       states={
+  #          "draft": [("readonly", False)],
+  #          "confirmed": [("readonly", False)],
+  #          "received": [("readonly", False)],
+  #      },
+    )
+    group_state = fields.Selection(
+            [
+            ("draft", "Draft"),
+            ("confirmed", "Confirmed"),
+            ("received", "Received"),
+            ('mixt','mixt'),
+#                 ("waiting_return", "Waiting for return"),
+#                 ("waiting_replacement", "Waiting for replacement"),
+#                 ("locked", "Locked"),
+            ('resolved','Resolved'),
+#                 ("refunded", "Refunded"),
+#                 ("returned", "Returned"),
+#                 ("replaced", "Replaced"),
+            ("cancelled", "Canceled"),
+        ],store="1",
+        compute='_compute_group_state')
+    rma_ids = fields.One2many('rma','rma_group_id')
+    finised = fields.Boolean(help="if this is true, means that we do not need to do anything with this group")
+
+    def _domain_location_id(self):
+        rma_loc = self.env["stock.warehouse"].search([]).mapped("rma_loc_id")
+        return [("id", "child_of", rma_loc.ids)]
+
+    # Reception fields
+    location_id = fields.Many2one(
+        comodel_name="stock.location",
+        domain=_domain_location_id,
+#        readonly=True,
+#        states={"draft": [("readonly", False)]},
+    )
+    warehouse_id = fields.Many2one(
+        comodel_name="stock.warehouse",
+        compute="_compute_warehouse_id",
+        store=True,
+    )
+    @api.depends("location_id")
+    def _compute_warehouse_id(self):
+        for record in self.filtered("location_id"):
+            record.warehouse_id = self.env["stock.warehouse"].search(
+                [("rma_loc_id", "parent_of", record.location_id.id)], limit=1
+            )
+
+
+    @api.depends('rma_ids','rma_ids.state')
+    def _compute_group_state(self):
+        for rec in self:
+            states = [x.state for x in rec.rma_ids]
+            if not states:
+                state = 'draft'
+            elif all([x=='draft' for x in states]):
+                state = 'draft'
+            elif all([x=='received' for x in states]):
+                state = 'received'
+            elif all([x=='confirmed' for x in states]):
+                state = 'confirmed'
+            elif all([x=='concelled' for x in states]):
+                state = 'cancelled'
+            elif all([x in ['refunded','returned','replaced' ]  for x in states]):
+                state = 'resolved'
+            else:
+                state = 'mixt'
+            rec.group_state = state
+            
+
+class Rma(models.Model):
+    _name = "rma"
+    _description = "RMA"
+    _order = "date desc, priority"
+    _inherits = {'rma.group': 'rma_group_id'}
+    _inherit = ["mail.thread", "portal.mixin", "mail.activity.mixin"]
+
+
+    deadline = fields.Date(
+        states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
+    )
+
+    # General fields
+    rma_group_id = fields.Many2one(
+        'rma.group', 'RMA Group',
+        auto_join=True, index=True, ondelete="cascade", required=True)
     move_id = fields.Many2one(
         comodel_name="stock.move",
         string="Origin Move",
@@ -127,16 +207,6 @@ class Rma(models.Model):
         states={"draft": [("readonly", False)]},
         default=lambda self: self.env.ref("uom.product_uom_unit").id,
     )
-    procurement_group_id = fields.Many2one(
-        comodel_name="procurement.group",
-        string="Procurement group",
-        readonly=True,
-        states={
-            "draft": [("readonly", False)],
-            "confirmed": [("readonly", False)],
-            "received": [("readonly", False)],
-        },
-    )
     priority = fields.Selection(
         string="Priority",
         selection=PROCUREMENT_PRIORITIES,
@@ -146,7 +216,7 @@ class Rma(models.Model):
     )
     operation_id = fields.Many2one(
         comodel_name="rma.operation",
-        string="Requested operation",
+        string="Requested operation", required=1
     )
     state = fields.Selection(
         [
@@ -167,18 +237,6 @@ class Rma(models.Model):
     )
     description = fields.Html(
         states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
-    )
-    # Reception fields
-    location_id = fields.Many2one(
-        comodel_name="stock.location",
-        domain=_domain_location_id,
-        readonly=True,
-        states={"draft": [("readonly", False)]},
-    )
-    warehouse_id = fields.Many2one(
-        comodel_name="stock.warehouse",
-        compute="_compute_warehouse_id",
-        store=True,
     )
     reception_move_id = fields.Many2one(
         comodel_name="stock.move",
@@ -398,12 +456,6 @@ class Rma(models.Model):
                 "waiting_replacement",
             ]
 
-    @api.depends("location_id")
-    def _compute_warehouse_id(self):
-        for record in self.filtered("location_id"):
-            record.warehouse_id = self.env["stock.warehouse"].search(
-                [("rma_loc_id", "parent_of", record.location_id.id)], limit=1
-            )
 
     def _compute_access_url(self):
         for record in self:

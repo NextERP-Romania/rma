@@ -8,3 +8,6 @@ access_rma_operation_user_own,rma.operation.user.own,model_rma_operation,rma_gro
 access_rma_operation_manager,rma.operation.manager,model_rma_operation,rma_group_manager,1,1,1,1
 access_rma_delivery_wizard_user_all,rma.delivery.wizard.user.all,model_rma_delivery_wizard,rma_group_user_all,1,1,1,1
 access_rma_split_wizard_user_all,rma.split.wizard.user.all,model_rma_split_wizard,rma_group_user_all,1,1,1,1
+access_rma_group_portal,rma.portal,model_rma_group,base.group_portal,1,0,0,0
+access_rma_group_user_own,rma.user.own,model_rma_group,rma_group_user_own,1,1,1,0
+access_rma_group_manager,rma.manager,model_rma_group,rma_group_manager,1,1,1,1
