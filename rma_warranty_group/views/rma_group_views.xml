@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <menuitem id="rma_group_orders_menu" parent="rma.rma_menu" name="RMA_GroupOrders" sequence="9" />
+
+    <record id="rma_groupview_search" model="ir.ui.view">
+        <field name="name">rma.groupview.search</field>
+        <field name="model">rma.group</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="user_id" />
+                <filter
+                    name="draft_filter"
+                    string="Draft"
+                    domain="[('state','=', 'draft')]"
+                />
+                <filter
+                    name="confirmed_filter"
+                    string="Confirmed"
+                    domain="[('state','=', 'confirmed')]"
+                />
+                <filter
+                    name="received_filter"
+                    string="Mixt"
+                    domain="[('state','=', 'mixt')]"
+                />
+                <separator />
+                <filter string="RMA Date" name="filter_rma_groupdate" date="date" />
+                <filter
+                    name="no_user_id_filter"
+                    string="Unassigned RMAs"
+                    domain="[('user_id','=', False)]"
+                />
+                <group string="Group By" name="group_by">
+                    <filter
+                        string="Partner"
+                        name="partner_id_group_by"
+                        context="{'group_by':'partner_id'}"
+                    />
+                    <filter
+                        string="Responsible"
+                        name="user_id_group_by"
+                        context="{'group_by':'user_id'}"
+                    />
+                    <filter
+                        string="Group State"
+                        name="state_group_by"
+                        context="{'group_by':'state'}"
+                    />
+                    <filter
+                        string="Date"
+                        name="date_group_by"
+                        context="{'group_by':'date'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="rma_groupview_tree" model="ir.ui.view">
+        <field name="name">rma.groupview.tree</field>
+        <field name="model">rma.group</field>
+        <field name="arch" type="xml">
+            <tree   create="false"    >
+                <field name="name" />
+                <field name="order_id" />
+                <field name="partner_id" />
+                <field name="date" />
+                <field name="user_id" />
+                <field name="state" />
+            </tree>
+        </field>
+    </record>
+    <record id="rma_groupview_form" model="ir.ui.view">
+        <field name="name">rma.groupview.form</field>
+        <field name="model">rma.group</field>
+        <field name="arch" type="xml">
+            <form create="false">
+                <header>
+<!--                     <button
+                        name="%(portal.portal_share_action)d"
+                        string="Share"
+                        type="action"
+                        class="oe_highlight oe_read_only"
+                    />
+                    <button
+                        type="object"
+                        string="Send by Email"
+                        name="action_rma_groupsend"
+                        attrs="{'invisible':['|', ('sent','=',True), ('state', 'not in', ['draft', 'confirmed', 'received'])]}"
+                        class="btn-primary"
+                    />
+                    <button
+                        type="object"
+                        string="Send by Mail"
+                        name="action_rma_groupsend"
+                        attrs="{'invisible':['|', ('sent','=',False), ('state', 'not in', ['draft', 'confirmed', 'received'])]}"
+                    />
+                    <button
+                        type="object"
+                        string="Confirm"
+                        name="action_confirm"
+                        states="draft"
+                        class="btn-primary"
+                    />
+                    <button
+                        type="object"
+                        string="To Refund"
+                        name="action_refund"
+                        attrs="{'invisible': [('can_be_refunded', '=', False)]}"
+                        class="btn-primary"
+                    />
+                    <button
+                        type="object"
+                        string="Replace"
+                        name="action_replace"
+                        attrs="{'invisible': [('can_be_replaced', '=', False)]}"
+                        class="btn-primary"
+                    />
+                    <button
+                        type="object"
+                        string="Return to customer"
+                        name="action_return"
+                        attrs="{'invisible': [('can_be_returned', '=', False)]}"
+                        class="btn-primary"
+                    />
+                    <button
+                        type="object"
+                        string="Split"
+                        name="action_split"
+                        attrs="{'invisible': [('can_be_split', '=', False)]}"
+                    />
+                    <button
+                        type="object"
+                        string="Cancel"
+                        name="action_cancel"
+                        confirm="Are you sure you want to cancel this RMA"
+                        states="draft,confirmed"
+                    />
+                    <button
+                        type="object"
+                        string="Set to draft"
+                        name="action_draft"
+                        states="cancelled"
+                    />
+                    <button
+                        type="object"
+                        string="Lock"
+                        name="action_lock"
+                        attrs="{'invisible': [('can_be_locked', '=', False)]}"
+                    />
+                    <button
+                        type="object"
+                        string="Unlock"
+                        name="action_unlock"
+                        states="locked"
+                    />
+                    <button type="object" string="Preview" name="action_preview" />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,confirmed,received"
+                    />
+ -->                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+    <!--                     <button
+                            type="object"
+                            name="action_view_receipt"
+                            string="Receipt"
+                            class="oe_stat_button"
+                            icon="fa-truck"
+                            attrs="{'invisible': [('reception_move_id', '=', False)]}"
+                        >
+                        </button>
+                        <button
+                            type="object"
+                            name="action_view_delivery"
+                            class="oe_stat_button"
+                            icon="fa-truck"
+                            attrs="{'invisible': [('delivery_picking_count', '=', 0)]}"
+                        >
+                            <field
+                                name="delivery_picking_count"
+                                widget="statinfo"
+                                string="Delivery"
+                            />
+                         </button>
+                        <button
+                            type="object"
+                            string="Refund"
+                            name="action_view_refund"
+                            class="oe_stat_button"
+                            icon="fa-pencil-square-o"
+                            attrs="{'invisible': [('refund_id', '=', False)]}"
+                        >
+                        </button>
+-->                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                         	<field  name="order_id" />
+                            <field  name="partner_id"/>
+<!--                            <field  name="commercial_partner_id"/>
+ -->                            
+<!--                             <field name="picking_id" options="{'no_create': True}"  attrs="{'readonly':[('rma_ids','!=',False)]}"/>
+ -->                           </group>
+                        <group>
+                            <field name="date" attrs="{'readonly':[('rma_ids','!=',False)]}"/>
+                            <field name="user_id" attrs="{'readonly':[('rma_ids','!=',False)]}"/>
+                            <field
+                                name="company_id"
+                                options="{'no_create': True}"
+                                groups="base.group_multi_company"
+                            attrs="{'readonly':[('rma_ids','!=',False)]}"
+                            />
+                        </group>
+                    </group>
+                            <group>
+                                <group>
+<!--                                     <field name="procurement_group_id" attrs="{'readonly':[('rma_ids','!=',False)]}"/>
+ -->                                </group>
+                            </group>
+
+                    <notebook>
+                        <page name="page_other" string="RMA lines">
+                        	<field name="rma_ids" attrs="{'readonly':[('rma_ids','!=',False)]}"/>
+                        </page>
+                    </notebook>
+                    <field name="sent" invisible="1" />
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers" />
+                    <field name="activity_ids" widget="mail_activity" />
+                    <field name="message_ids" widget="mail_thread" />
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="rma_groupaction" model="ir.actions.act_window">
+        <field name="name">RMA Groups</field>
+        <field name="res_model">rma.group</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context"></field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Click to add a new rma.group
+            </p>
+        </field>
+    </record>
+     <record id="rma_group_orders_menu" model="ir.ui.menu">
+        <field name="action" ref="rma_groupaction" />
+    </record> 
+</odoo>

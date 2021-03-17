@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="rma_view_alsogroup_search" model="ir.ui.view">
+        <field name="name">rma.view.alsogorup.search</field>
+        <field name="inherit_id" ref="rma.rma_view_search"/>
+        <field name="model">rma</field>
+        <field name="arch" type="xml">
+                 <filter  name="partner_id_group_by" position="after">
+                 	<filter name="rma_group_id" string="RMA Group" context="{'group_by':'rma_group_id'}"/>
+                 	<filter name="rma_reason_id" string="RMA Reasib" context="{'group_by':'rma_reason_id'}"/>
+                 </filter>
+                    
+        </field>
+    </record>
+    <record id="rma_view_aslo_group_tree" model="ir.ui.view">
+        <field name="name">rma_view_aslo_group_tree</field>
+        <field name="inherit_id" ref="rma.rma_view_tree"/>
+        <field name="model">rma</field>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="rma_group_id" />
+                <field name="rma_reason_id" />
+            </field>    
+        </field>
+    </record>
+
+    <record id="rma_also_group_view_form" model="ir.ui.view">
+        <field name="name">rma_also_group_view_form</field>
+        <field name="model">rma</field>
+        <field name="inherit_id" ref="rma.rma_view_form"/>
+        <field name="arch" type="xml">
+                <field  name="partner_id" position="before">
+                	<filed name="rma_group_id" options="{'no_quick_create':True,'no_create_edit':True}" />
+                </field>
+                <field  name="product_uom_qty" position="after">
+                	<filed name="rma_reason_id" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True}" />
+                </field>        
+        </field>
+    </record>
+
+</odoo>
