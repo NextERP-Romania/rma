@@ -58,19 +58,21 @@ class SaleOrder(models.Model):
                 "location_id": self.warehouse_id.rma_loc_id.id,
             }
         )
+
         return {
             "name": _("Create Group RMA"),
             "type": "ir.actions.act_window",
             "view_mode": "form",
             "res_model": "sale.order.rma.wizard",
             "res_id": wizard.id,
+            "views":[(self.env.ref("rma_warranty_group.sale_order_rma_reson_wizard_form_view").id,'form')],
             "target": "new",
         }
 
     def action_view_rma_group(self):
         self.ensure_one()
-        action = self.env.ref("rma_groupaction").read()[0]
-        rma = self.rma_ids
+        action = self.env.ref("rma_warranty_group.rma_groupaction").read()[0]
+        rma = self.rma_group_ids
         if len(rma) == 1:
             action.update(
                 res_id=rma.id,

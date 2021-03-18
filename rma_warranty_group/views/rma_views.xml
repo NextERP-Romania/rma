@@ -28,6 +28,7 @@
             <field name="name" position="after">
                 <field name="rma_group_id" />
                 <field name="rma_reason_id" />
+                <field name="description" />
             </field>
         </field>
     </record>

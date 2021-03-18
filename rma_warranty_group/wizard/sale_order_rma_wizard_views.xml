@@ -4,13 +4,20 @@
         <field name="name">sale.order.rma.reason.wizard.form</field>
         <field name="inherit_id" ref="rma_sale.sale_order_rma_wizard_form_view" />
         <field name="model">sale.order.rma.wizard</field>
+        <field name="mode">primary</field> 
         <field name="arch" type="xml">
             <field name="operation_id" position="after">
                  <field name="rma_reason_id" />
             </field>
             <footer position="before">
-            <field name="description" />
+                <field name="description" />
             </footer>
+            <button name="create_and_open_rma"  position="replace">
+                <button name="create_and_open_rma_group"
+                        string="Create and open RMA Group"
+                        type="object"
+                        class="btn-primary" />
+            </button> 
         </field>
     </record>
 </odoo>
