@@ -1,9 +1,10 @@
-from odoo import models,fields
+from odoo import fields, models
+
 
 class RmaReason(models.Model):
-    _name="rma.reason"
+    _name = "rma.reason"
     _inherit = "mail.thread"
-    _description ="reasons for a RMA"
+    _description = "reasons for a RMA"
     _order = "name"
-    
-    name = fields.Char(traking=1) 
+
+    name = fields.Char(traking=1)

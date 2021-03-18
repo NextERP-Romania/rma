@@ -14,8 +14,6 @@ class ResPartner(models.Model):
         compute="_compute_rmag_count",
     )
 
-
-
     def _compute_rmag_count(self):
         rma_data = self.env["rma.group"].read_group(
             [("partner_id", "in", self.ids)], ["partner_id"], ["partner_id"]

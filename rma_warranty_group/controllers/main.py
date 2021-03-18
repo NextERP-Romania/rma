@@ -27,11 +27,15 @@ class PortalRma(CustomerPortal):
             rma_group, access_token, values, "my_rmags_history", False, **kwargs
         )
 
-
     @http.route(
-        ["/my/rmags", "/my/rmags/page/<int:page>"], type="http", auth="user", website=True
+        ["/my/rmags", "/my/rmags/page/<int:page>"],
+        type="http",
+        auth="user",
+        website=True,
     )
-    def portal_my_rmags(self, page=1, date_begin=None, date_end=None, sortby=None, **kw):
+    def portal_my_rmags(
+        self, page=1, date_begin=None, date_end=None, sortby=None, **kw
+    ):
         values = self._prepare_portal_layout_values()
         rma_group_obj = request.env["rma.group"]
         domain = self._get_filter_domain(kw)
@@ -82,12 +86,16 @@ class PortalRma(CustomerPortal):
         )
         return request.render("rma.portal_my_rmas", values)
 
-    @http.route(["/my/rmags/<int:rma_group_id>"], type="http", auth="public", website=True)
+    @http.route(
+        ["/my/rmags/<int:rma_group_id>"], type="http", auth="public", website=True
+    )
     def portal_my_rma_group_detail(
         self, rma_group_id, access_token=None, report_type=None, download=False, **kw
     ):
         try:
-            rma_sudo = self._document_check_access("rma.group", rma_group_id, access_token)
+            rma_sudo = self._document_check_access(
+                "rma.group", rma_group_id, access_token
+            )
         except (AccessError, MissingError):
             return request.redirect("/my")
         if report_type in ("html", "pdf", "text"):
@@ -107,7 +115,9 @@ class PortalRma(CustomerPortal):
         auth="public",
         website=True,
     )
-    def portal_my_rmag_picking_report(self, rma_group_id, picking_id, access_token=None, **kw):
+    def portal_my_rmag_picking_report(
+        self, rma_group_id, picking_id, access_token=None, **kw
+    ):
         try:
             picking_sudo = self._picking_check_access(
                 rma_group_id, picking_id, access_token=access_token

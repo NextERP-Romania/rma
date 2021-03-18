@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+     <record id="sale_order_rma_reson_wizard_form_view" model="ir.ui.view">
+        <field name="name">sale.order.rma.reason.wizard.form</field>
+        <field name="inherit_id" ref="rma_sale.sale_order_rma_wizard_form_view" />
+        <field name="model">sale.order.rma.wizard</field>
+        <field name="arch" type="xml">
+            <field name="operation_id" position="after">
+                 <field name="rma_reason_id" />
+            </field>
+            <footer position="before">
+            <field name="description" />
+            </footer>
+        </field>
+    </record>
+</odoo>

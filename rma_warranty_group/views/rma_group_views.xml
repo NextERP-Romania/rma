@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <menuitem id="rma_group_orders_menu" parent="rma.rma_menu" name="RMA_GroupOrders" sequence="9" />
+    <menuitem
+        id="rma_group_orders_menu"
+        parent="rma.rma_menu"
+        name="RMA_GroupOrders"
+        sequence="8"
+    />
 
     <record id="rma_groupview_search" model="ir.ui.view">
         <field name="name">rma.groupview.search</field>
@@ -60,7 +65,7 @@
         <field name="name">rma.groupview.tree</field>
         <field name="model">rma.group</field>
         <field name="arch" type="xml">
-            <tree   create="false"    >
+            <tree create="false">
                 <field name="name" />
                 <field name="order_id" />
                 <field name="partner_id" />
@@ -202,20 +207,26 @@
                     </div>
                     <group>
                         <group>
-                         	<field  name="order_id" />
-                            <field  name="partner_id"/>
+                             <field name="order_id" />
+                            <field name="partner_id" />
 <!--                            <field  name="commercial_partner_id"/>
- -->                            
+ -->
 <!--                             <field name="picking_id" options="{'no_create': True}"  attrs="{'readonly':[('rma_ids','!=',False)]}"/>
  -->                           </group>
                         <group>
-                            <field name="date" attrs="{'readonly':[('rma_ids','!=',False)]}"/>
-                            <field name="user_id" attrs="{'readonly':[('rma_ids','!=',False)]}"/>
+                            <field
+                                name="date"
+                                attrs="{'readonly':[('rma_ids','!=',False)]}"
+                            />
+                            <field
+                                name="user_id"
+                                attrs="{'readonly':[('rma_ids','!=',False)]}"
+                            />
                             <field
                                 name="company_id"
                                 options="{'no_create': True}"
                                 groups="base.group_multi_company"
-                            attrs="{'readonly':[('rma_ids','!=',False)]}"
+                                attrs="{'readonly':[('rma_ids','!=',False)]}"
                             />
                         </group>
                     </group>
@@ -227,7 +238,10 @@
 
                     <notebook>
                         <page name="page_other" string="RMA lines">
-                        	<field name="rma_ids" attrs="{'readonly':[('rma_ids','!=',False)]}"/>
+                            <field
+                                name="rma_ids"
+                                attrs="{'readonly':[('rma_ids','!=',False)]}"
+                            />
                         </page>
                     </notebook>
                     <field name="sent" invisible="1" />
@@ -245,7 +259,7 @@
         <field name="name">RMA Groups</field>
         <field name="res_model">rma.group</field>
         <field name="view_mode">tree,form</field>
-        <field name="context"></field>
+        <field name="context" />
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Click to add a new rma.group
@@ -254,5 +268,5 @@
     </record>
      <record id="rma_group_orders_menu" model="ir.ui.menu">
         <field name="action" ref="rma_groupaction" />
-    </record> 
+    </record>
 </odoo>

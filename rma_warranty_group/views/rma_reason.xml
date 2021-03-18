@@ -1,23 +1,28 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
 
-    <menuitem id="rma_reason_menu" parent="rma.rma_configuration_menu" name="RMA reasons" sequence="30" />
- 
+    <menuitem
+        id="rma_reason_menu"
+        parent="rma.rma_configuration_menu"
+        name="RMA Reasons"
+        sequence="30"
+    />
+
    <record id="rma_reason_tree" model="ir.ui.view">
         <field name="name">rma_reason_tree</field>
         <field name="model">rma.reason</field>
         <field name="arch" type="xml">
-            <tree     editable="top"  >
+            <tree editable="top">
                 <field name="name" />
             </tree>
         </field>
     </record>
- 
+
     <record id="rma_reason" model="ir.actions.act_window">
-        <field name="name">rma_reason</field>
+        <field name="name">Rma Reasons</field>
         <field name="res_model">rma.reason</field>
         <field name="view_mode">tree,form</field>
-        <field name="context"></field>
+        <field name="context" />
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Click to add a new rma.reason
@@ -26,6 +31,6 @@
     </record>
      <record id="rma_reason_menu" model="ir.ui.menu">
         <field name="action" ref="rma_reason" />
-    </record> 
+    </record>
 
 </odoo>
