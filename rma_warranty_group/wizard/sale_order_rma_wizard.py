@@ -8,7 +8,6 @@ class SaleOrderRmaWizard(models.TransientModel):
         help="A field to tell when was over the warranty for the products", readonly=1
     )
 
-        #
     def create_and_open_rma_group(self):
         self.ensure_one()
         lines = self.line_ids.filtered(lambda r: (r.quantity > 0.0) and r.operation_id )
@@ -49,52 +48,3 @@ class SaleOrderLineRmaWizard(models.TransientModel):
         return res
 
 #
-#     @api.depends("picking_id")
-#     def _compute_move_id(self):
-#         for record in self:
-#             move_id = False
-#             if record.picking_id:
-#                 move_id = record.picking_id.move_lines.filtered(
-#                     lambda r: (
-#                         r.sale_line_id.product_id == record.product_id
-#                         and r.sale_line_id.order_id == record.order_id
-#                     )
-#                 )
-#             record.write(
-#                 {
-#                     "move_id": move_id.id if move_id else False,
-#                     "uom_id": move_id.product_uom.id if move_id else False,
-#                 }
-#             )
-#
-#     @api.depends("order_id")
-#     def _compute_allowed_product_ids(self):
-#         for record in self:
-#             product_ids = record.order_id.order_line.mapped("product_id.id")
-#             record.allowed_product_ids = product_ids
-#
-#     @api.depends("product_id")
-#     def _compute_allowed_picking_ids(self):
-#         for record in self:
-#             line = record.order_id.order_line.filtered(
-#                 lambda r: r.product_id == record.product_id
-#             )
-#             record.allowed_picking_ids = line.mapped("move_ids.picking_id")
-#
-#     def _prepare_rma_values(self):
-#         self.ensure_one()
-#         return {
-#             "partner_id": self.order_id.partner_id.id,
-#             "partner_invoice_id": self.order_id.partner_invoice_id.id,
-#             "origin": self.order_id.name,
-#             "company_id": self.order_id.company_id.id,
-#             "location_id": self.wizard_id.location_id.id,
-#             "order_id": self.order_id.id,
-#             "picking_id": self.picking_id.id,
-#             "move_id": self.move_id.id,
-#             "product_id": self.product_id.id,
-#             "product_uom_qty": self.quantity,
-#             "product_uom": self.uom_id.id,
-#             "operation_id": self.operation_id.id,
-#             "description": self.description,
-#         }
