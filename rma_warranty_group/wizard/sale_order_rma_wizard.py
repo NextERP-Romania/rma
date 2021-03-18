@@ -28,7 +28,7 @@ class SaleOrderRmaWizard(models.TransientModel):
             values={"self": rma, "origin": self.order_id},
             subtype_id=self.env.ref("mail.mt_note").id,
         )
-        action = self.env.ref("rma_warranty_group.rmagroup_action").read()[0]
+        action = self.env.ref("rma_warranty_group.rma_groupaction").read()[0]
         action.update(
             res_id=rma.id,
             view_mode="form",

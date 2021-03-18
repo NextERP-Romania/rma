@@ -81,45 +81,43 @@
         <field name="arch" type="xml">
             <form create="false">
                 <header>
-<!--                     <button
-                        name="%(portal.portal_share_action)d"
-                        string="Share"
-                        type="action"
-                        class="oe_highlight oe_read_only"
-                    />
                     <button
                         type="object"
-                        string="Send by Email"
-                        name="action_rma_groupsend"
-                        attrs="{'invisible':['|', ('sent','=',True), ('state', 'not in', ['draft', 'confirmed', 'received'])]}"
-                        class="btn-primary"
-                    />
-                    <button
-                        type="object"
-                        string="Send by Mail"
-                        name="action_rma_groupsend"
-                        attrs="{'invisible':['|', ('sent','=',False), ('state', 'not in', ['draft', 'confirmed', 'received'])]}"
-                    />
-                    <button
-                        type="object"
-                        string="Confirm"
+                        string="Create Return Transfers"
                         name="action_confirm"
                         states="draft"
                         class="btn-primary"
                     />
                     <button
                         type="object"
+                        string="Cancel(Refuse)"
+                        name="action_cancel"
+                        confirm="Are you sure you want to cancel this RMA"
+                        states="draft"
+                    />
+                    <button
+                        type="object"
                         string="To Refund"
                         name="action_refund"
-                        attrs="{'invisible': [('can_be_refunded', '=', False)]}"
                         class="btn-primary"
+                         attrs="{'invisible':[('state','not in',['cancel','draft'])]}"
                     />
+<!--                        ('can_be_refunded', '=', False),
+ -->
                     <button
                         type="object"
                         string="Replace"
                         name="action_replace"
-                        attrs="{'invisible': [('can_be_replaced', '=', False)]}"
                         class="btn-primary"
+                         attrs="{'invisible':[('state','not in',['cancel','draft'])]}"
+                    />
+<!--                         ('can_be_replaced', '=', False)
+ -->
+<!--                <button
+                        type="object"
+                        string="Send by Mail"
+                        name="action_rma_groupsend"
+                        attrs="{'invisible':['|', ('sent','=',False), ('state', 'not in', ['draft', 'confirmed', 'received'])]}"
                     />
                     <button
                         type="object"
@@ -133,13 +131,6 @@
                         string="Split"
                         name="action_split"
                         attrs="{'invisible': [('can_be_split', '=', False)]}"
-                    />
-                    <button
-                        type="object"
-                        string="Cancel"
-                        name="action_cancel"
-                        confirm="Are you sure you want to cancel this RMA"
-                        states="draft,confirmed"
                     />
                     <button
                         type="object"
@@ -160,12 +151,12 @@
                         states="locked"
                     />
                     <button type="object" string="Preview" name="action_preview" />
-                    <field
+ -->                   <field
                         name="state"
                         widget="statusbar"
                         statusbar_visible="draft,confirmed,received"
                     />
- -->                </header>
+                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
     <!--                     <button
@@ -207,8 +198,11 @@
                     </div>
                     <group>
                         <group>
+                            <fields name="can_be_refunded" invisible="0"/>
+                            <fields name="can_be_replaced" invisible="0"/>
+
                              <field name="order_id" />
-                            <field name="partner_id" />
+                           <field name="partner_id" />
 <!--                            <field  name="commercial_partner_id"/>
  -->
 <!--                             <field name="picking_id" options="{'no_create': True}"  attrs="{'readonly':[('rma_ids','!=',False)]}"/>
