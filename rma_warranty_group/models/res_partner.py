@@ -20,12 +20,12 @@ class ResPartner(models.Model):
         )
         mapped_data = {r["partner_id"][0]: r["partner_id_count"] for r in rma_data}
         for record in self:
-            record.rma_count = mapped_data.get(record.id, 0)
+            record.rma_group_count = mapped_data.get(record.id, 0)
 
     def action_view_rmag(self):
         self.ensure_one()
         action = self.env.ref("rma_warranty_group.rma_groupaction").read()[0]
-        rmag = self.rmag_ids
+        rmag = self.rma_group_ids
         if len(rmag) == 1:
             action.update(
                 res_id=rmag.id,

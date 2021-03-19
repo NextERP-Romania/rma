@@ -86,7 +86,16 @@ class RmaGroup(models.Model):
         readonly=1,
         related="partner_id.commercial_partner_id",
     )
-
+    b2b = fields.Selection([('b2b',"B2B"),('b2c','B2C')],
+        comodel_name="res.partner",
+        readonly=1,
+        related="partner_id.b2b",
+    )
+    pricelist_id = fields.Many2one(
+        comodel_name="product.pricelist",
+        readonly=1,
+        related="partner_id.property_product_pricelist",
+    )
     state = fields.Selection(
         [
             ("draft", "Draft"),

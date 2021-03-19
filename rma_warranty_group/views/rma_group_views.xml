@@ -101,7 +101,7 @@
                         name="action_refund"
                         class="btn-primary"
                         help="will press the button from sale order to invoice ( with refund)"
-                         attrs="{'invisible':[('state','in',['cancel','draft'])]}"
+                         attrs="{'invisible':[('can_be_refunded', '=', False),('state','in',['cancel','draft','resolved'])]}"
                     />
 <!--                        ('can_be_refunded', '=', False),
  -->
@@ -110,53 +110,14 @@
                         string="Replace Make a Delivery"
                         name="action_replace"
                         class="btn-primary"
-                         attrs="{'invisible':[('state','in',['cancel','draft'])]}"
+                         attrs="{'invisible':[('can_be_replaced', '=', False),('state','in',['cancel','draft','resolved'])]}"
                     />
 <!--                         ('can_be_replaced', '=', False)
  -->
-<!--                <button
-                        type="object"
-                        string="Send by Mail"
-                        name="action_rma_groupsend"
-                        attrs="{'invisible':['|', ('sent','=',False), ('state', 'not in', ['draft', 'confirmed', 'received'])]}"
-                    />
-                    <button
-                        type="object"
-                        string="Return to customer"
-                        name="action_return"
-                        attrs="{'invisible': [('can_be_returned', '=', False)]}"
-                        class="btn-primary"
-                    />
-                    <button
-                        type="object"
-                        string="Split"
-                        name="action_split"
-                        attrs="{'invisible': [('can_be_split', '=', False)]}"
-                    />
-                    <button
-                        type="object"
-                        string="Set to draft"
-                        name="action_draft"
-                        states="cancelled"
-                    />
-                    <button
-                        type="object"
-                        string="Lock"
-                        name="action_lock"
-                        attrs="{'invisible': [('can_be_locked', '=', False)]}"
-                    />
-                    <button
-                        type="object"
-                        string="Unlock"
-                        name="action_unlock"
-                        states="locked"
-                    />
-                    <button type="object" string="Preview" name="action_preview" />
- -->                   <field
+                   <field
                         name="state"
                         widget="statusbar"
-                        statusbar_visible="draft,confirmed,received"
-                    />
+                    /> <!-- statusbar_visible="draft,confirmed,received" -->
                  </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -208,6 +169,8 @@
 
                              <field name="order_id" />
                            <field name="partner_id" />
+                            <field name="b2b" />
+                             <field name="pricelist_id" />
 <!--                            <field  name="commercial_partner_id"/>
  -->
 <!--                             <field name="picking_id" options="{'no_create': True}"  attrs="{'readonly':[('rma_ids','!=',False)]}"/>
