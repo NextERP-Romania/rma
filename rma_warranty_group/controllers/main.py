@@ -1,6 +1,3 @@
-# Copyright 2020 Tecnativa - Ernesto Tejeda
-# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-
 from odoo import _, exceptions, http
 from odoo.exceptions import AccessError, MissingError
 from odoo.http import request
@@ -9,8 +6,8 @@ from odoo.tools import consteq
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
 
 
-class PortalRma(CustomerPortal):
-    def _prepare_portal_layout_values(self):
+class PortalRmaGroup(CustomerPortal):
+    def _prepare_portal_layout_rma_group_values(self):
         values = super()._prepare_portal_layout_values()
         if request.env["rma.group"].check_access_rights("read", raise_exception=False):
             values["rma_group_count"] = request.env["rma.group"].search_count([])
@@ -36,7 +33,7 @@ class PortalRma(CustomerPortal):
     def portal_my_rmags(
         self, page=1, date_begin=None, date_end=None, sortby=None, **kw
     ):
-        values = self._prepare_portal_layout_values()
+        values = self._prepare_portal_layout_rma_group_values()
         rma_group_obj = request.env["rma.group"]
         domain = self._get_filter_domain(kw)
         searchbar_sortings = {
@@ -84,7 +81,7 @@ class PortalRma(CustomerPortal):
                 "sortby": sortby,
             }
         )
-        return request.render("rma.portal_my_rmas", values)
+        return request.render("rma_warranty_group.portal_my_rmags", values)
 
     @http.route(
         ["/my/rmags/<int:rma_group_id>"], type="http", auth="public", website=True

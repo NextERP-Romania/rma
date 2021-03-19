@@ -1,76 +1,65 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!-- Copyright 2020 Tecnativa - Ernesto Tejeda
-     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
 <odoo>
     <template
-        id="portal_my_home_menu_rma"
+        id="portal_my_home_menu_rmag"
         name="Portal layout : RMA menu entries"
         inherit_id="portal.portal_breadcrumbs"
-        priority="35"
+        priority="36"
     >
         <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
             <li
-                t-if="page_name == 'RMA'"
-                t-attf-class="breadcrumb-item #{'active ' if not rma else ''}"
+                t-if="page_name == 'RMA Groups'"
+                t-attf-class="breadcrumb-item #{'active ' if not rmag else ''}"
             >
-                <a t-if="rma" t-attf-href="/my/rmas?{{ keep_query() }}">RMA Orders</a>
-                <t t-else="">RMA Orders</t>
+                <a t-if="rmag" t-attf-href="/my/rmasg?{{ keep_query() }}">RMA Group Orders</a>
+                <t t-else="">RMA Group Orders</t>
             </li>
-            <li t-if="rma" class="breadcrumb-item active">
-                <t t-esc="rma.name" />
+            <li t-if="rmag" class="breadcrumb-item active">
+                <t t-esc="rmag.name" />
             </li>
         </xpath>
     </template>
     <template
-        id="portal_my_home_rma"
-        name="Portal My Home : RMA entries"
+        id="portal_my_home_rmag"
+        name="Portal My Home : RMA Group entries"
         inherit_id="portal.portal_my_home"
-        priority="30"
+        priority="31"
     >
         <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
             <t t-call="portal.portal_docs_entry">
-                <t t-set="title">RMA Orders</t>
-                <t t-set="url" t-value="'/my/rmas'" />
-                <t t-set="count" t-value="rma_count" />
+                <t t-set="title">RMA Group Orders</t>
+                <t t-set="url" t-value="'/my/rmags'" />
+                <t t-set="count" t-value="rma_group_count" />
             </t>
         </xpath>
     </template>
-    <template id="portal_my_rmas" name="My RMA Orders">
+    <template id="portal_my_rmags" name="My RMA Group Orders">
         <t t-call="portal.portal_layout">
             <t t-set="breadcrumbs_searchbar" t-value="True" />
             <t t-call="portal.portal_searchbar">
-                <t t-set="title">RMA Orders</t>
+                <t t-set="title">RMA Group Orders</t>
             </t>
-            <t t-if="rmas" t-call="portal.portal_table">
+            <t t-if="rmasg" t-call="portal.portal_table">
                 <thead>
                     <tr class="active">
-                        <th>RMA #</th>
+                        <th>RMA Group #</th>
                         <th class='d-none d-md-table-cell'>Date</th>
-                        <th>Product</th>
-                        <th class='text-right'>Quantity</th>
                         <th class='d-none d-md-table-cell'>Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <t t-foreach="rmas" t-as="rma">
+                    <t t-foreach="rmags" t-as="rmag">
                         <tr>
                             <td>
                                 <a
-                                    t-att-href="rma.get_portal_url()"
-                                    t-att-title="rma.name"
+                                    t-att-href="rmag.get_portal_url()"
+                                    t-att-title="rmag.name"
                                 >
-                                    <t t-esc="rma.name" />
+                                    <t t-esc="rmag.name" />
                                 </a>
                             </td>
                             <td class="d-none d-md-table-cell">
                                 <span t-field="rma.date" />
-                            </td>
-                            <!-- Portal users don't have access to unpublished products -->
-                            <td>
-                                <span t-esc="rma.sudo().product_id.display_name" />
-                            </td>
-                            <td class='text-right'>
-                                <span t-field="rma.product_uom_qty" />
                             </td>
                             <td class="d-none d-md-table-cell tx_status">
                                 <span class="badge badge-pill badge-secondary">
@@ -83,13 +72,13 @@
             </t>
         </t>
     </template>
-    <template id="portal_rma_page" name="My RMA">
+    <template id="portal_rmag_page" name="My RMA Group">
         <t t-call="portal.portal_layout">
             <t t-set="o_portal_fullwidth_alert" groups="rma.rma_group_user_own">
                 <t t-call="portal.portal_back_in_edit_mode">
                     <t
                         t-set="backend_url"
-                        t-value="'/web#return_label=Website&amp;model=rma&amp;id=%s&amp;view_type=form' % (rma.id)"
+                        t-value="'/web#return_label=Website&amp;model=rma.group&amp;id=%s&amp;view_type=form' % (rmag.id)"
                     />
                 </t>
             </t>
@@ -97,14 +86,14 @@
                 <t t-set="card_header">
                     <h5 class="mb-0">
                         <span>
-                            RMA Order - <span t-field="rma.name" />
+                            RMA Group Order - <span t-field="rmag.name" />
                         </span>
                         <span
                             style="position: absolute; left: 50%;"
                             class="d-none d-sm-inline"
                         >
                             <a
-                                t-att-href="rma.get_portal_url(report_type='pdf', download=True)"
+                                t-att-href="rmag.get_portal_url(report_type='pdf', download=True)"
                             >
                                 <i
                                     class="fa fa-download"
@@ -115,21 +104,21 @@
                             </a>
                         </span>
                         <span class="float-right">
-                            <t t-if="rma.state in ['refunded', 'returned', 'replaced']">
+                            <t t-if="rmag.state in ['resolved']">
                                 <span
                                     class="small text-success orders_label_text_align"
                                 >
                                     <i class="fa fa-fw fa-check" />
                                     <b>
-                                        <span t-field="rma.state" />
+                                        <span t-field="rmag.state" />
                                     </b>
                                 </span>
                             </t>
-                            <t t-elif="rma.state in ['cancelled', 'locked']">
+                            <t t-elif="rmag.state in ['cancelled']">
                                 <span class="small text-danger orders_label_text_align">
                                     <i class="fa fa-fw fa-times" />
                                     <b>
-                                        <span t-field="rma.state" />
+                                        <span t-field="rmag.state" />
                                     </b>
                                 </span>
                             </t>
@@ -137,7 +126,7 @@
                                 <span class="small text-info orders_label_text_align">
                                     <i class="fa fa-fw fa-clock-o" />
                                     <b>
-                                        <span t-field="rma.state" />
+                                        <span t-field="rmag.state" />
                                     </b>
                                 </span>
                             </t>
@@ -148,7 +137,7 @@
                     <div id="general_information">
                         <div class="row mt4">
                             <div
-                                t-if="rma.partner_id"
+                                t-if="rmag.partner_id"
                                 class="col-12 col-md-6 mb-4 mb-md-0"
                             >
                                 <h6>
@@ -157,9 +146,9 @@
                                 <div class="row">
                                     <div class="col flex-grow-0 pr-3">
                                         <img
-                                            t-if="rma.partner_id.image_1024"
+                                            t-if="rmag.partner_id.image_1024"
                                             class="rounded-circle mt-1 o_portal_contact_img"
-                                            t-att-src="image_data_uri(rma.partner_id.image_1024)"
+                                            t-att-src="image_data_uri(rmag.partner_id.image_1024)"
                                             alt="Contact"
                                         />
                                         <img
@@ -171,22 +160,22 @@
                                     </div>
                                     <div class="col pl-sm-0">
                                         <address
-                                            t-field="rma.partner_id"
+                                            t-field="rmag.partner_id"
                                             t-options='{"widget": "contact", "fields": ["name", "email", "phone"]}'
                                         />
                                     </div>
                                 </div>
                             </div>
-                            <div t-if="rma.user_id" class="col-12 col-md-6">
+                            <div t-if="rmag.user_id" class="col-12 col-md-6">
                                 <h6>
                                     <strong>Responsible:</strong>
                                 </h6>
                                 <div class="row">
                                     <div class="col flex-grow-0 pr-3">
                                         <img
-                                            t-if="rma.user_id.image_1024"
+                                            t-if="rmag.user_id.image_1024"
                                             class="rounded-circle mt-1 o_portal_contact_img"
-                                            t-att-src="image_data_uri(rma.user_id.image_1024)"
+                                            t-att-src="image_data_uri(rmag.user_id.image_1024)"
                                             alt="Contact"
                                         />
                                         <img
@@ -198,62 +187,28 @@
                                     </div>
                                     <div class="col pl-sm-0">
                                         <address
-                                            t-field="rma.user_id"
+                                            t-field="rmag.user_id"
                                             t-options='{"widget": "contact", "fields": ["name", "email", "phone"]}'
                                         />
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="row mt32" id="product_information">
+                        <div class="row mt32" id="Sale_order">
                             <div class="col-12 col-md-6 mb-4 mb-md-0">
                                 <div t-if="rma.picking_id" class="row mb-2 mb-sm-1">
                                     <div class="col-12 col-sm-4">
-                                        <strong>Origin delivery</strong>
+                                        <strong>Sale Order</strong>
                                     </div>
                                     <div class="col-12 col-sm-8">
-                                        <span t-field="rma.picking_id" />
-                                    </div>
-                                </div>
-                                <!-- We need to prevent access errors if the product is
-                                     unpublished-->
-                                <div
-                                    t-if="rma.sudo().product_id"
-                                    class="row mb-2 mb-sm-1"
-                                >
-                                    <div class="col-12 col-sm-4">
-                                        <strong>Product</strong>
-                                    </div>
-                                    <div class="col-12 col-sm-8">
-                                        <span
-                                            t-esc="rma.sudo().product_id.display_name"
-                                        />
-                                    </div>
-                                </div>
-                                <div
-                                    t-if="rma.product_uom_qty"
-                                    class="row mb-2 mb-sm-1"
-                                >
-                                    <div class="col-12 col-sm-4">
-                                        <strong>Quantity</strong>
-                                    </div>
-                                    <div class="col-12 col-sm-8">
-                                        <span t-field="rma.product_uom_qty" />
-                                    </div>
-                                </div>
-                                <div t-if="rma.delivered_qty" class="row">
-                                    <div class="col-12 col-sm-4">
-                                        <strong>Delivered quantity</strong>
-                                    </div>
-                                    <div class="col-12 col-sm-8">
-                                        <span t-field="rma.delivered_qty" />
+                                        <span t-field="rmag.order" />
                                     </div>
                                 </div>
                             </div>
                             <div class="col-12 col-md-6">
                                 <div t-if="rma.date" class="row mb-2 mb-sm-1">
                                     <div class="col-12 col-sm-4">
-                                        <strong>RMA Date</strong>
+                                        <strong>RMA Group Date</strong>
                                     </div>
                                     <div class="col-12 col-sm-8">
                                         <span
@@ -262,36 +217,17 @@
                                         />
                                     </div>
                                 </div>
-                                <div t-if="rma.deadline" class="row mb-2 mb-sm-1">
-                                    <div class="col-12 col-sm-4">
-                                        <strong>Deadline</strong>
-                                    </div>
-                                    <div class="col-12 col-sm-8">
-                                        <span
-                                            t-field="rma.deadline"
-                                            t-options='{"widget": "date"}'
-                                        />
-                                    </div>
-                                </div>
-                                <div t-if="rma.origin" class="row">
-                                    <div class="col-12 col-sm-4">
-                                        <strong>Origin</strong>
-                                    </div>
-                                    <div class="col-12 col-sm-8">
-                                        <span t-field="rma.origin" />
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
                     <section
-                        t-if="rma.reception_move_id"
+                        t-if="rmag.reception_move_id"
                         id="reception_section"
                         style="page-break-inside: auto;"
                         class="mt32"
                     >
                         <strong class="d-block mb-1">Reception</strong>
-                        <t t-set="picking" t-value="rma.reception_move_id.picking_id" />
+                        <t t-foreach="rmag.incomming_tranfers_ids" t-as="picking"></t>
                         <t
                             t-set="report_url"
                             t-value="'/my/rma/picking/pdf/%s/%s?%s' % (rma.id, picking.id, keep_query())"
@@ -338,13 +274,13 @@
                         </a>
                     </section>
                     <section
-                        t-if="rma.refund_id"
+                        t-if="rmag.invoices_ids"
                         id="refund_section"
                         style="page-break-inside: auto;"
                         class="mt32"
                     >
                         <strong class="d-block mb-1">Refund</strong>
-                        <t t-set="refund" t-value="rma.refund_id" />
+                        <t t-foreach="rmag.invoices_ids" t-as="refund"  />
                         <t
                             t-set="report_url"
                             t-value="refund.get_portal_url(report_type='pdf')"
@@ -383,7 +319,7 @@
                         </a>
                     </section>
                     <section
-                        t-if="rma.delivery_move_ids"
+                        t-if="rmag.outgoing_transfers_ids"
                         id="reception_section"
                         style="page-break-inside: auto;"
                         class="mt32"
@@ -391,7 +327,7 @@
                         <strong class="d-block mb-1">Delivery</strong>
                         <ul class="list-group mb-4">
                             <t
-                                t-foreach="rma.delivery_move_ids.mapped('picking_id')"
+                                t-foreach="rmag.outgoing_transfers_ids"
                                 t-as="picking"
                             >
                                 <t
@@ -447,11 +383,11 @@
                             </t>
                         </ul>
                     </section>
-                    <section id="description" class="mt-5" t-if="rma.description">
+<!--                     <section id="description" class="mt-5" t-if="rma.description">
                         <h3 class="">Description</h3>
                         <hr class="mt-0 mb-1" />
                         <t t-raw="rma.description" />
-                    </section>
+                    </section> -->
                 </t>
             </t>
             <!-- chatter -->

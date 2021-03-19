@@ -27,6 +27,8 @@
         "views/rma_reason.xml",
         "views/sale_views.xml",
         "wizard/sale_order_rma_wizard_views.xml",
+        
+        "views/rma_portal_templates.xml",
     ],
     "application": False,
 }
