@@ -97,19 +97,20 @@
                     />
                     <button
                         type="object"
-                        string="To Refund"
+                        string="Refund Create Retrun Invoice"
                         name="action_refund"
                         class="btn-primary"
-                         attrs="{'invisible':[('state','not in',['cancel','draft'])]}"
+                        help="will press the button from sale order to invoice ( with refund)"
+                         attrs="{'invisible':[('state','in',['cancel','draft'])]}"
                     />
 <!--                        ('can_be_refunded', '=', False),
  -->
                     <button
                         type="object"
-                        string="Replace"
+                        string="Replace Make a Delivery"
                         name="action_replace"
                         class="btn-primary"
-                         attrs="{'invisible':[('state','not in',['cancel','draft'])]}"
+                         attrs="{'invisible':[('state','in',['cancel','draft'])]}"
                     />
 <!--                         ('can_be_replaced', '=', False)
  -->
@@ -159,38 +160,42 @@
                  </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-    <!--                     <button
+                       <button
                             type="object"
-                            name="action_view_receipt"
-                            string="Receipt"
-                            class="oe_stat_button"
-                            icon="fa-truck"
-                            attrs="{'invisible': [('reception_move_id', '=', False)]}"
-                        >
+                            name="action_view_incomming_transfers"
+                             icon="fa-truck"
+                            class="oe_stat_button">
+                            <field
+                                name="count_incomming_tranfers"
+                                widget="statinfo"
+                                string="Incomming Transfers"
+                            />
                         </button>
                         <button
                             type="object"
-                            name="action_view_delivery"
+                            name="action_view_outgoing_transfers"
                             class="oe_stat_button"
                             icon="fa-truck"
-                            attrs="{'invisible': [('delivery_picking_count', '=', 0)]}"
                         >
                             <field
-                                name="delivery_picking_count"
+                                name="count_outgoing_transfers"
                                 widget="statinfo"
-                                string="Delivery"
+                                string="Outgoing Transfers"
                             />
                          </button>
                         <button
                             type="object"
-                            string="Refund"
-                            name="action_view_refund"
+                            name="action_view_invoices"
                             class="oe_stat_button"
                             icon="fa-pencil-square-o"
-                            attrs="{'invisible': [('refund_id', '=', False)]}"
                         >
+                            <field
+                                name="count_invoices"
+                                widget="statinfo"
+                                string="Refund Invoices"
+                            />
                         </button>
--->                    </div>
+                    </div>
                     <div class="oe_title">
                         <h1>
                             <field name="name" readonly="1" />
@@ -198,8 +203,8 @@
                     </div>
                     <group>
                         <group>
-                            <fields name="can_be_refunded" invisible="0"/>
-                            <fields name="can_be_replaced" invisible="0"/>
+                            <field name="can_be_refunded" invisible="0"/>
+                            <field name="can_be_replaced" invisible="0"/>
 
                              <field name="order_id" />
                            <field name="partner_id" />
