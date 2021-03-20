@@ -8,30 +8,24 @@ class RmaGroup(models.Model):
     _order = "date desc"
     _inherit = ["mail.thread", "portal.mixin", "mail.activity.mixin"]
 
-    @api.depends('order_id')
-    def _compute_name(self):
-        for rec in self:
-            if rec.name:
-                continue
-            else:
-                latest_rma = rec.search_read(
-                    [("order_id", "=", rec.order_id.id)],
-                    ["name"],
-                    order="id desc",
-                    limit=1,
-                )
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if 'order_id' in vals:
+                latest_rma = self.search_read([("order_id", "=", vals['order_id'])],["name"], order="id desc",limit=1,)
                 if latest_rma:
-                    orginal_name = latest_rma[1]
+                    orginal_name = str(latest_rma[0]['name'])
                     nr_position = orginal_name.rfind("#")
-                    if nr_position:
-                        name = orginal_name[:nr_position] + str(
-                            int(orginal_name[nr_position:]) + 1
-                        )
+                    if nr_position >= 0:
+                        name = orginal_name[:nr_position] + str( int(orginal_name[nr_position:]) + 1)
                     else:
                         name = orginal_name + "#1"
                 else:
-                    name = rec.sale_order.name
-                rec.name = "RMAG/" + name
+                    name = self.env['sale_order'].browse('order_id').name
+                vals['name'] = "RMAG/" + name
+        res_ids = super().create(vals_list)
+        return res_ids
+
 
     order_id = fields.Many2one(
         comodel_name="sale.order", string="Sale Order", readonly=1
@@ -56,7 +50,7 @@ class RmaGroup(models.Model):
         return super().write(values)
 
     sent = fields.Boolean()
-    name = fields.Char(string="Name", index=True, computed="_compute_name", store=True)
+    name = fields.Char(string="Name", readonly=1, store=True)
     date = fields.Datetime(
         default=lambda self: fields.Datetime.now(),
         index=True,

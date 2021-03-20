@@ -29,6 +29,7 @@
         "wizard/sale_order_rma_wizard_views.xml",
         
         "views/rma_portal_templates.xml",
+        "views/sale_portal_template.xml",
     ],
     "application": False,
 }
