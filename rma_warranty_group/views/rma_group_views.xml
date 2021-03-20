@@ -101,7 +101,7 @@
                         name="action_refund"
                         class="btn-primary"
                         help="will press the button from sale order to invoice ( with refund)"
-                         attrs="{'invisible':[('can_be_refunded', '=', False),('state','in',['cancel','draft','resolved'])]}"
+                         attrs="{'invisible':['|',('can_be_refunded', '=', False),('state','in',['cancel','draft','resolved'])]}"
                     />
 <!--                        ('can_be_refunded', '=', False),
  -->
@@ -110,7 +110,7 @@
                         string="Replace Make a Delivery"
                         name="action_replace"
                         class="btn-primary"
-                         attrs="{'invisible':[('can_be_replaced', '=', False),('state','in',['cancel','draft','resolved'])]}"
+                         attrs="{'invisible':['|',('can_be_replaced', '=', False),('state','in',['cancel','draft','resolved'])]}"
                     />
 <!--                         ('can_be_replaced', '=', False)
  -->
