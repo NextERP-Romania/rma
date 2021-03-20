@@ -12,7 +12,7 @@
                 t-attf-class="breadcrumb-item #{'active ' if not rmag else ''}"
             >
                 <a t-if="rmag" t-attf-href="/my/rmasg?{{ keep_query() }}">RMA Group Orders</a>
-                <t t-else="">RMA Group Orders</t>
+                <t t-else="">RMA Group Orders my</t>
             </li>
             <li t-if="rmag" class="breadcrumb-item active">
                 <t t-esc="rmag.name" />
@@ -23,13 +23,12 @@
         id="portal_my_home_rmag"
         name="Portal My Home : RMA Group entries"
         inherit_id="portal.portal_my_home"
-        priority="31"
-    >
+        priority="31">
         <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
             <t t-call="portal.portal_docs_entry">
-                <t t-set="title">RMA Group Orders</t>
+                <t t-set="title">RMA Group Orders doc</t>
                 <t t-set="url" t-value="'/my/rmags'" />
-                <t t-set="count" t-value="rma_group_count" />
+                 <t t-set="count" t-value="rma_group_count" />
             </t>
         </xpath>
     </template>
@@ -39,7 +38,7 @@
             <t t-call="portal.portal_searchbar">
                 <t t-set="title">RMA Group Orders</t>
             </t>
-            <t t-if="rmasg" t-call="portal.portal_table">
+            <t t-if="rmags" t-call="portal.portal_table">
                 <thead>
                     <tr class="active">
                         <th>RMA Group #</th>
@@ -48,7 +47,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <t t-foreach="rmags" t-as="rmag">
+                     <t t-foreach="rmags" t-as="rmag">
                         <tr>
                             <td>
                                 <a
@@ -59,16 +58,16 @@
                                 </a>
                             </td>
                             <td class="d-none d-md-table-cell">
-                                <span t-field="rma.date" />
+                                <span t-field="rmag.date" />
                             </td>
                             <td class="d-none d-md-table-cell tx_status">
                                 <span class="badge badge-pill badge-secondary">
-                                    <span t-field="rma.state" />
+                                    <span t-field="rmag.state" />
                                 </span>
                             </td>
                         </tr>
                     </t>
-                </tbody>
+                </tbody> 
             </t>
         </t>
     </template>

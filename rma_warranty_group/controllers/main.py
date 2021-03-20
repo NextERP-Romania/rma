@@ -75,18 +75,20 @@ class PortalRmaGroup(CustomerPortal):
                 "rmags": rmags,
                 "page_name": "RMA Groups",
                 "pager": pager,
+                "some_value":'value 44',
                 #                "archive_groups": archive_groups,
                 "default_url": "/my/rmags",
                 "searchbar_sortings": searchbar_sortings,
                 "sortby": sortby,
             }
         )
+        print(values)
         return request.render("rma_warranty_group.portal_my_rmags", values)
 
     @http.route(
         ["/my/rmags/<int:rma_group_id>"], type="http", auth="public", website=True
     )
-    def portal_my_rma_group_detail(
+    def portal_my_rmag_detail(
         self, rma_group_id, access_token=None, report_type=None, download=False, **kw
     ):
         try:
@@ -103,7 +105,7 @@ class PortalRmaGroup(CustomerPortal):
                 download=download,
             )
 
-        values = self._rma_get_page_view_values(rma_sudo, access_token, **kw)
+        values = self._rmag_get_page_view_values(rma_sudo, access_token, **kw)
         return request.render("rma_warranty_group.portal_rmag_page", values)
 
     @http.route(
