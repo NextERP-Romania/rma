@@ -7,7 +7,7 @@ from odoo.addons.portal.controllers.portal import CustomerPortal, pager as porta
 
 
 class PortalRmaGroup(CustomerPortal):
-    def _prepare_portal_layout_rma_group_values(self):
+    def _prepare_portal_layout_values(self):
         values = super()._prepare_portal_layout_values()
         if request.env["rma.group"].check_access_rights("read", raise_exception=False):
             values["rma_group_count"] = request.env["rma.group"].search_count([])
@@ -33,7 +33,7 @@ class PortalRmaGroup(CustomerPortal):
     def portal_my_rmags(
         self, page=1, date_begin=None, date_end=None, sortby=None, **kw
     ):
-        values = self._prepare_portal_layout_rma_group_values()
+        values = self._prepare_portal_layout_values()
         rma_group_obj = request.env["rma.group"]
         domain = self._get_filter_domain(kw)
         searchbar_sortings = {
