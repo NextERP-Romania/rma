@@ -21,9 +21,11 @@
         <field name="model_id" ref="model_rma_group" />
         <field
             name="domain_force"
-        >[('message_partner_ids', 'child_of', [user.partner_id.commercial_partner_id.id])]</field>
+        >[('partner_id', 'child_of', [user.partner_id.commercial_partner_id.id])]</field>
         <field name="groups" eval="[(4, ref('base.group_portal'))]" />
     </record>
+
+    
     <!-- Multi-Company Rules -->
     <record id="rma_rule_multi_company" model="ir.rule">
         <field name="name">RMAG multi-company</field>

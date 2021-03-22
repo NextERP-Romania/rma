@@ -53,7 +53,9 @@ class CustomerPortal(CustomerPortal):
         )
         lines = wizard.line_ids.filtered(lambda r: r.quantity > 0.0)
         val_list = [(0, 0, line._prepare_rma_values()) for line in lines]
-        rma = request.env["rma.group"].create(
+        if not val_list:
+            raise MissingError("You can not create a RMA without product lines")
+        rma = request.env["rma.group"].sudo().create(
             {"rma_ids": val_list, "order_id": order_id}
         )
         # post messages

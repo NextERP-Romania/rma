@@ -26,7 +26,7 @@ class PortalRmaGroup(CustomerPortal):
     def _rmag_get_page_view_values(self, rma_group, access_token, **kwargs):
         values = {
             "page_name": "RMA GROUPS",
-            "rma_group": rma_group,
+            "rmag": rma_group,
         }
         return self._get_page_view_values(
             rma_group, access_token, values, "my_rmags_history", False, **kwargs
@@ -83,7 +83,7 @@ class PortalRmaGroup(CustomerPortal):
                 "rmags": rmags,
                 "page_name": "RMA Groups",
                 "pager": pager,
-                "some_value": "value 44",
+
                 #                "archive_groups": archive_groups,
                 "default_url": "/my/rmags",
                 "searchbar_sortings": searchbar_sortings,

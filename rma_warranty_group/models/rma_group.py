@@ -8,30 +8,30 @@ class RmaGroup(models.Model):
     _order = "date desc"
     _inherit = ["mail.thread", "portal.mixin", "mail.activity.mixin"]
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        for vals in vals_list:
+    def create(self, vals):
+        
             if "order_id" in vals:
                 latest_rma = self.search_read(
                     [("order_id", "=", vals["order_id"])],
                     ["name"],
                     order="id desc",
-                    limit=1,
-                )
+                    limit=1,)
                 if latest_rma:
                     orginal_name = str(latest_rma[0]["name"])
                     nr_position = orginal_name.rfind("#")
                     if nr_position >= 0:
-                        name = orginal_name[:nr_position] + str(
-                            int(orginal_name[nr_position:]) + 1
-                        )
+                        name = orginal_name[:nr_position+1] + str(
+                            int(orginal_name[nr_position+1:]) + 1 )
                     else:
                         name = orginal_name + "#1"
                 else:
-                    name = self.env["sale.order"].browse(vals["order_id"]).name
-                vals["name"] = "RMAG/" + name
-        res_ids = super().create(vals_list)
-        return res_ids
+                    name =  "RMAG/"+self.env["sale.order"].browse(vals["order_id"]).name
+                vals["name"] = name
+            else:
+                raise ValidationError("You can not create a RMA_group that does not have a order_id")
+                
+            res_ids = super(RmaGroup,self).create(vals)   
+            return res_ids
 
     order_id = fields.Many2one(
         comodel_name="sale.order", string="Sale Order", readonly=1
@@ -169,7 +169,7 @@ class RmaGroup(models.Model):
             rec.count_outgoing_transfers = len(set(outgoing_transfers_ids))
             rec.incomming_tranfers_ids = [(6, 0, set(incomming_tranfers_ids))]
             rec.count_incomming_tranfers = len(set(incomming_tranfers_ids))
-
+ 
     @api.returns("mail.message", lambda value: value.id)
     def message_post(self, **kwargs):
         """Set 'sent' field to True when an email is sent from rma form
@@ -182,14 +182,7 @@ class RmaGroup(models.Model):
         # RMA followers
         self_with_context = self.with_context(mail_post_autofollow=True)
         return super(RmaGroup, self_with_context).message_post(**kwargs)
-
-    refund_ids = fields.Many2one(
-        comodel_name="account.move",
-        string="Refund",
-        readonly=True,
-        copy=False,
-    )
-
+ 
     # Action methods
     def action_rma_send(self):
         self.ensure_one()
@@ -278,11 +271,36 @@ class RmaGroup(models.Model):
     def action_refund(self):
         """will press the button from sale order to invoice ( with refund)"""
         self.ensure_one()
-        res = self.order_id._create_invoices(final=True)
-        self.rma_ids.filtered(
-            lambda r: r.operation_id.name == "Refund" and r.state == "confirmed"
-        ).write({"state": "refunded"})
-        return res
+        refund_lines = self.rma_ids.filtered(lambda r: r.state == "received" and r.operation_id.name=="Refund")
+        product_dict = {x.product_id.id:x for x in refund_lines}
+        if  not refund_lines:
+            raise ValidationError("Is no line that has state=='received' and operation_id.name=='Refund'")
+#        invoice = self.rma_ids.action_refund()  # not woking not giving the same values as in sale
+        invoice = self.order_id._create_invoices(final=True)
+        if invoice.move_type != 'out_refund':
+            raise ValidationError(f"The return invoice must be type 'out_refund' but is {invoice.move_type}")
+        invoice_lines = {}
+        for line in invoice.invoice_line_ids:
+            if line.product_id.id not in product_dict:
+                line.unlink()
+            elif line.quantity != product_dict[line.product_id.id].product_uom_qty:
+                raise  ValidationError(f"for line with product_id={line.product_id.name} the return invoice qty={line.quantity} but RMA qty ={product_dict[line.product_id.id].product_uom_qty}")
+            else:
+                invoice_lines[line.id] = product_dict[line.product_id.id]
+                line.rma_id = product_dict[line.product_id.id].id
+        if  len(invoice_lines) != len(product_dict):
+            raise ValidationError(f"Some lines are not in return invoice. please do it manually.\nIn Invoice:{[x.product_id.name for x in invoice.invoice_line_ids]}\nIn RMA:{[product_dict[x].product_id.name for x in product_dict]}")
+        for key  in invoice_lines:
+            invoice_lines[key].write(
+                    {
+                        "refund_line_id": key,
+                        "refund_id": invoice.id,
+                        "state": "refunded",
+                    }
+                )
+        invoice.ref=self.name
+
+        return invoice
 
     def action_replace(self):
         """Invoked when 'Replace' button in rma form view is clicked."""
