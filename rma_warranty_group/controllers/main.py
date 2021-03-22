@@ -7,12 +7,20 @@ from odoo.addons.portal.controllers.portal import CustomerPortal, pager as porta
 
 
 class PortalRmaGroup(CustomerPortal):
-    def _prepare_portal_layout_values(self):
-        values = super()._prepare_portal_layout_values()
-        if request.env["rma.group"].check_access_rights("read", raise_exception=False):
-            values["rma_group_count"] = request.env["rma.group"].search_count([])
-        else:
-            values["rma_group_count"] = 0
+    def _prepare_home_portal_values(self, counters):
+        values = super()._prepare_home_portal_values(counters)
+        if "rma_group_count" in counters:
+            values["rma_group_count"] = (
+                request.env["rma.group"].search_count(
+                    [
+                        # ('state', 'in', ['purchase', 'done', 'cancel'])
+                    ]
+                )
+                if request.env["rma.group"].check_access_rights(
+                    "read", raise_exception=False
+                )
+                else 0
+            )
         return values
 
     def _rmag_get_page_view_values(self, rma_group, access_token, **kwargs):
@@ -75,14 +83,13 @@ class PortalRmaGroup(CustomerPortal):
                 "rmags": rmags,
                 "page_name": "RMA Groups",
                 "pager": pager,
-                "some_value":'value 44',
+                "some_value": "value 44",
                 #                "archive_groups": archive_groups,
                 "default_url": "/my/rmags",
                 "searchbar_sortings": searchbar_sortings,
                 "sortby": sortby,
             }
         )
-        print(values)
         return request.render("rma_warranty_group.portal_my_rmags", values)
 
     @http.route(

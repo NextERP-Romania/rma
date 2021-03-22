@@ -22,7 +22,11 @@
                     icon="fa-reply"
                     attrs="{'invisible': [('rma_group_count', '=', 0)]}"
                 >
-                    <field name="rma_group_count" widget="statinfo" string="Group RMA" />
+                    <field
+                        name="rma_group_count"
+                        widget="statinfo"
+                        string="Group RMA"
+                    />
                 </button>
             </div>
         </field>

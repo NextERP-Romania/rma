@@ -7,4 +7,4 @@ class RmaReason(models.Model):
     _description = "reasons for a RMA"
     _order = "name"
 
-    name = fields.Char(traking=1)
+    name = fields.Char(tracking=1)

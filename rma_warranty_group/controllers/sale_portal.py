@@ -49,14 +49,17 @@ class CustomerPortal(CustomerPortal):
         order = order_obj.browse(order_id).sudo()
         location_id = order.warehouse_id.rma_loc_id.id
         wizard = wizard_obj.with_context(active_id=order_id).create(
-            {"order_id":order_id,"line_ids": line_vals, "location_id": location_id}
+            {"order_id": order_id, "line_ids": line_vals, "location_id": location_id}
         )
         lines = wizard.line_ids.filtered(lambda r: r.quantity > 0.0)
-        val_list = [(0,0,line._prepare_rma_values()) for line in lines]
-        rma = request.env["rma.group"].create({ 'rma_ids':val_list, 'order_id':order_id})
+        val_list = [(0, 0, line._prepare_rma_values()) for line in lines]
+        rma = request.env["rma.group"].create(
+            {"rma_ids": val_list, "order_id": order_id}
+        )
         # post messages
         msg_list = [
-            '<a href="#" data-oe-model="rma_group" data-oe-id="%d">%s</a>' % (r.id, r.name)
+            '<a href="#" data-oe-model="rma_group" data-oe-id="%d">%s</a>'
+            % (r.id, r.name)
             for r in rma
         ]
         msg = ", ".join(msg_list)
@@ -64,13 +67,13 @@ class CustomerPortal(CustomerPortal):
             order.message_post(body=_(msg + " has been created."))
         elif len(msg_list) > 1:
             order.message_post(body=_(msg + " have been created."))
-#         rma.message_post_with_view(
-#             "mail.message_origin_link",
-#             values={"self": rma, "origin": .order_id},
-#             subtype_id=self.env.ref("mail.mt_note").id,
-#         )
-#         for rec in rma:
-#             rec.origin += _(" (Portal)")
+        #         rma.message_post_with_view(
+        #             "mail.message_origin_link",
+        #             values={"self": rma, "origin": .order_id},
+        #             subtype_id=self.env.ref("mail.mt_note").id,
+        #         )
+        #         for rec in rma:
+        #             rec.origin += _(" (Portal)")
         # Add the user as follower of the created RMAs so they can
         # later view them.
         rma.message_subscribe([request.env.user.partner_id.id])
@@ -78,8 +81,5 @@ class CustomerPortal(CustomerPortal):
             route = order_sudo.get_portal_url()
         else:
             route = f"/my/rmags?sale_id={order_id}"
-            
+
         return request.redirect(route)
-            
-        
-            

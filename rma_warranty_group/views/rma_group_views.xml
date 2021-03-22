@@ -101,7 +101,7 @@
                         name="action_refund"
                         class="btn-primary"
                         help="will press the button from sale order to invoice ( with refund)"
-                         attrs="{'invisible':['|',('can_be_refunded', '=', False),('state','in',['cancel','draft','resolved'])]}"
+                        attrs="{'invisible':['|',('can_be_refunded', '=', False),('state','in',['cancel','draft','resolved'])]}"
                     />
 <!--                        ('can_be_refunded', '=', False),
  -->
@@ -110,7 +110,7 @@
                         string="Replace Make a Delivery"
                         name="action_replace"
                         class="btn-primary"
-                         attrs="{'invisible':['|',('can_be_replaced', '=', False),('state','in',['cancel','draft','resolved'])]}"
+                        attrs="{'invisible':['|',('can_be_replaced', '=', False),('state','in',['cancel','draft','resolved'])]}"
                     />
 <!--                         ('can_be_replaced', '=', False)
  -->
@@ -124,8 +124,9 @@
                        <button
                             type="object"
                             name="action_view_incomming_transfers"
-                             icon="fa-truck"
-                            class="oe_stat_button">
+                            icon="fa-truck"
+                            class="oe_stat_button"
+                        >
                             <field
                                 name="count_incomming_tranfers"
                                 widget="statinfo"
@@ -164,13 +165,15 @@
                     </div>
                     <group>
                         <group>
-                            <field name="can_be_refunded" invisible="0"/>
-                            <field name="can_be_replaced" invisible="0"/>
+                            <field name="can_be_refunded" invisible="0" />
+                            <field name="can_be_replaced" invisible="0" />
 
                              <field name="order_id" />
                            <field name="partner_id" />
-                            <field name="b2b" />
-                             <field name="pricelist_id" />
+<!--                             <field name="b2b" />
+ -->                             <field
+                                name="pricelist_id"
+                            />
 <!--                            <field  name="commercial_partner_id"/>
  -->
 <!--                             <field name="picking_id" options="{'no_create': True}"  attrs="{'readonly':[('rma_ids','!=',False)]}"/>

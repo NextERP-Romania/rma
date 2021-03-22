@@ -11,7 +11,10 @@
                 t-if="page_name == 'RMA Groups'"
                 t-attf-class="breadcrumb-item #{'active ' if not rmag else ''}"
             >
-                <a t-if="rmag" t-attf-href="/my/rmasg?{{ keep_query() }}">RMA Group Orders</a>
+                <a
+                    t-if="rmag"
+                    t-attf-href="/my/rmasg?{{ keep_query() }}"
+                >RMA Group Orders</a>
                 <t t-else="">RMA Group Orders my</t>
             </li>
             <li t-if="rmag" class="breadcrumb-item active">
@@ -21,17 +24,20 @@
     </template>
     <template
         id="portal_my_home_rmag"
-        name="Portal My Home : RMA Group entries"
+        name="Show RMA Group"
+        customize_show="True"
         inherit_id="portal.portal_my_home"
-        priority="31">
+        priority="31"
+    >
         <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
             <t t-call="portal.portal_docs_entry">
                 <t t-set="title">RMA Group Orders doc</t>
                 <t t-set="url" t-value="'/my/rmags'" />
-                 <t t-set="count" t-value="rma_group_count" />
+                 <t t-set="placeholder_count" t-value="'rma_group_count'" />
             </t>
         </xpath>
     </template>
+
     <template id="portal_my_rmags" name="My RMA Group Orders">
         <t t-call="portal.portal_layout">
             <t t-set="breadcrumbs_searchbar" t-value="True" />
@@ -67,7 +73,7 @@
                             </td>
                         </tr>
                     </t>
-                </tbody> 
+                </tbody>
             </t>
         </t>
     </template>
@@ -226,7 +232,7 @@
                         class="mt32"
                     >
                         <strong class="d-block mb-1">Reception</strong>
-                        <t t-foreach="rmag.incomming_tranfers_ids" t-as="picking"></t>
+                        <t t-foreach="rmag.incomming_tranfers_ids" t-as="picking" />
                         <t
                             t-set="report_url"
                             t-value="'/my/rma/picking/pdf/%s/%s?%s' % (rma.id, picking.id, keep_query())"
@@ -279,7 +285,7 @@
                         class="mt32"
                     >
                         <strong class="d-block mb-1">Refund</strong>
-                        <t t-foreach="rmag.invoices_ids" t-as="refund"  />
+                        <t t-foreach="rmag.invoices_ids" t-as="refund" />
                         <t
                             t-set="report_url"
                             t-value="refund.get_portal_url(report_type='pdf')"
@@ -325,10 +331,7 @@
                     >
                         <strong class="d-block mb-1">Delivery</strong>
                         <ul class="list-group mb-4">
-                            <t
-                                t-foreach="rmag.outgoing_transfers_ids"
-                                t-as="picking"
-                            >
+                            <t t-foreach="rmag.outgoing_transfers_ids" t-as="picking">
                                 <t
                                     t-set="report_url"
                                     t-value="'/my/rma/picking/pdf/%s/%s?%s' % (rma.id, picking.id, keep_query())"

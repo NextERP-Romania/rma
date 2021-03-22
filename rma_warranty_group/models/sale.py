@@ -65,7 +65,14 @@ class SaleOrder(models.Model):
             "view_mode": "form",
             "res_model": "sale.order.rma.wizard",
             "res_id": wizard.id,
-            "views":[(self.env.ref("rma_warranty_group.sale_order_rma_reson_wizard_form_view").id,'form')],
+            "views": [
+                (
+                    self.env.ref(
+                        "rma_warranty_group.sale_order_rma_reson_wizard_form_view"
+                    ).id,
+                    "form",
+                )
+            ],
             "target": "new",
         }
 

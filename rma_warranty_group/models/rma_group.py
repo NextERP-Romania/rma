@@ -11,21 +11,27 @@ class RmaGroup(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            if 'order_id' in vals:
-                latest_rma = self.search_read([("order_id", "=", vals['order_id'])],["name"], order="id desc",limit=1,)
+            if "order_id" in vals:
+                latest_rma = self.search_read(
+                    [("order_id", "=", vals["order_id"])],
+                    ["name"],
+                    order="id desc",
+                    limit=1,
+                )
                 if latest_rma:
-                    orginal_name = str(latest_rma[0]['name'])
+                    orginal_name = str(latest_rma[0]["name"])
                     nr_position = orginal_name.rfind("#")
                     if nr_position >= 0:
-                        name = orginal_name[:nr_position] + str( int(orginal_name[nr_position:]) + 1)
+                        name = orginal_name[:nr_position] + str(
+                            int(orginal_name[nr_position:]) + 1
+                        )
                     else:
                         name = orginal_name + "#1"
                 else:
-                    name = self.env['sale_order'].browse('order_id').name
-                vals['name'] = "RMAG/" + name
+                    name = self.env["sale.order"].browse(vals["order_id"]).name
+                vals["name"] = "RMAG/" + name
         res_ids = super().create(vals_list)
         return res_ids
-
 
     order_id = fields.Many2one(
         comodel_name="sale.order", string="Sale Order", readonly=1
@@ -35,10 +41,16 @@ class RmaGroup(models.Model):
     count_outgoing_transfers = fields.Integer(compute="_compute_group_state")
     count_incomming_tranfers = fields.Integer(compute="_compute_group_state")
 
-#    original_transfers = = fields.One2many('stock.picking',compute="_compute_group_state")
-    invoices_ids = fields.One2many('account.move','rma_group_id',compute="_compute_group_state")
-    outgoing_transfers_ids =fields.One2many('stock.picking','rma_group_id',compute="_compute_group_state")
-    incomming_tranfers_ids =fields.One2many('stock.picking','rma_group_id',compute="_compute_group_state")
+    #    original_transfers = = fields.One2many('stock.picking',compute="_compute_group_state")
+    invoices_ids = fields.One2many(
+        "account.move", "rma_group_id", compute="_compute_group_state"
+    )
+    outgoing_transfers_ids = fields.One2many(
+        "stock.picking", "rma_group_id", compute="_compute_group_state"
+    )
+    incomming_tranfers_ids = fields.One2many(
+        "stock.picking", "rma_group_id", compute="_compute_group_state"
+    )
 
     def _compute_access_url(self):
         for record in self:
@@ -80,11 +92,7 @@ class RmaGroup(models.Model):
         readonly=1,
         related="partner_id.commercial_partner_id",
     )
-    b2b = fields.Selection([('b2b',"B2B"),('b2c','B2C')],
-        comodel_name="res.partner",
-        readonly=1,
-        related="partner_id.b2b",
-    )
+    #    b2b = fields.Selection(readonly=1,related="partner_id.b2b")
     pricelist_id = fields.Many2one(
         comodel_name="product.pricelist",
         readonly=1,
@@ -113,9 +121,8 @@ class RmaGroup(models.Model):
         help="if this is true, means that we do not need to do anything with this group"
     )
 
-    can_be_replaced = fields.Boolean(compute="_compute_group_state",store=1)
-    can_be_refunded = fields.Boolean(compute="_compute_group_state",store=1)
-    
+    can_be_replaced = fields.Boolean(compute="_compute_group_state", store=1)
+    can_be_refunded = fields.Boolean(compute="_compute_group_state", store=1)
 
     @api.depends("rma_ids", "rma_ids.state")
     def _compute_group_state(self):
@@ -136,28 +143,32 @@ class RmaGroup(models.Model):
             else:
                 state = "mixt"
             rec.state = state
-            if state not in ['draft', 'cancelled','resolved']:
-                if rec.rma_ids.filtered(lambda r: r.operation_id.name=='Replace'):
+            if state not in ["draft", "cancelled", "resolved"]:
+                if rec.rma_ids.filtered(lambda r: r.operation_id.name == "Replace"):
                     rec.can_be_replaced = 1
                 else:
                     rec.can_be_replaced = 0
-                if rec.rma_ids.filtered(lambda r: r.operation_id.name=='Refund'):
+                if rec.rma_ids.filtered(lambda r: r.operation_id.name == "Refund"):
                     rec.can_be_refunded = 1
                 else:
                     rec.can_be_refunded = 0
-            invoices_ids,outgoing_transfers_ids,incomming_tranfers_ids = [],[],[]
+            invoices_ids, outgoing_transfers_ids, incomming_tranfers_ids = [], [], []
             for rma in self.rma_ids:
                 invoices_ids.extend([rma.refund_id.id] if rma.refund_id else [])
-                incomming_tranfers_ids.extend([rma.reception_move_id.picking_id.id] if rma.reception_move_id else [])
-                outgoing_transfers_ids.extend([x.picking_id.id for x in rma.delivery_move_ids])
-            rec.invoices_ids = [(6,0,set(invoices_ids))]
+                incomming_tranfers_ids.extend(
+                    [rma.reception_move_id.picking_id.id]
+                    if rma.reception_move_id
+                    else []
+                )
+                outgoing_transfers_ids.extend(
+                    [x.picking_id.id for x in rma.delivery_move_ids]
+                )
+            rec.invoices_ids = [(6, 0, set(invoices_ids))]
             rec.count_invoices = len(set(invoices_ids))
-            rec.outgoing_transfers_ids = [(6,0,set(outgoing_transfers_ids))]
+            rec.outgoing_transfers_ids = [(6, 0, set(outgoing_transfers_ids))]
             rec.count_outgoing_transfers = len(set(outgoing_transfers_ids))
-            rec.incomming_tranfers_ids = [(6,0,set(incomming_tranfers_ids))]
+            rec.incomming_tranfers_ids = [(6, 0, set(incomming_tranfers_ids))]
             rec.count_incomming_tranfers = len(set(incomming_tranfers_ids))
-            
-                    
 
     @api.returns("mail.message", lambda value: value.id)
     def message_post(self, **kwargs):
@@ -210,29 +221,31 @@ class RmaGroup(models.Model):
         will call the _crate_reception_from_picking and _from_product  in rma
         """
         self.ensure_one()
-        if not self.state=='draft' and not self.rma_ids:
-            raise ValidationError('You can not create reception when state is not draft OR you can not create receptions if you do not have RMA lines')
-        
+        if not self.state == "draft" and not self.rma_ids:
+            raise ValidationError(
+                "You can not create reception when state is not draft OR you can not create receptions if you do not have RMA lines"
+            )
 
-        pickings={}
+        pickings = {}
         for rma in self.rma_ids:
             if rma.picking_id.id not in pickings:
-                pickings[rma.picking_id.id]=[rma]
+                pickings[rma.picking_id.id] = [rma]
             else:
                 pickings[rma.picking_id.id].append(rma)
         for key in pickings:
-            create_vals={
-                    'location_id':pickings[key][0].location_id.id,
-                    'picking_id':pickings[key][0].picking_id.id,}
+            create_vals = {
+                "location_id": pickings[key][0].location_id.id,
+                "picking_id": pickings[key][0].picking_id.id,
+            }
             return_wizard = (
                 self.env["stock.return.picking"]
-                .with_context(
-                active_id=key,
-                active_ids=[key]).create(create_vals))
-            return_wizard._onchange_picking_id() # is creating all the lines from picking
+                .with_context(active_id=key, active_ids=[key])
+                .create(create_vals)
+            )
+            return_wizard._onchange_picking_id()  # is creating all the lines from picking
             for return_move in return_wizard.product_return_moves:
                 move_id = return_move.move_id
-                rma = [x for x in pickings[key] if x.move_id==move_id][0]
+                rma = [x for x in pickings[key] if x.move_id == move_id][0]
                 if not rma:
                     return_move.unlink()  # this line is not in RMA to return
                 else:
@@ -240,63 +253,84 @@ class RmaGroup(models.Model):
 
             # set_rma_picking_type is to override the copy() method of stock
             # picking and change the default picking type to rma picking type.
-            picking_action = return_wizard.with_context( set_rma_picking_type=True).create_returns()
+            picking_action = return_wizard.with_context(
+                set_rma_picking_type=True
+            ).create_returns()
             picking_id = picking_action["res_id"]
             print(f"created returned picking={picking_id}")
             picking = self.env["stock.picking"].browse(picking_id)
             picking.origin = "{} ({})".format(self.name, picking.origin)
             for rma in pickings[key]:
-                rma.write({"reception_move_id": [x.id for x in picking.move_lines  if x.product_id==rma.product_id ][0], "state": "confirmed"})
+                rma.write(
+                    {
+                        "reception_move_id": [
+                            x.id
+                            for x in picking.move_lines
+                            if x.product_id == rma.product_id
+                        ][0],
+                        "state": "confirmed",
+                    }
+                )
                 if rma.partner_id not in self.message_partner_ids:
                     rma.message_subscribe([self.partner_id.id])
         return
 
-
-
-
     def action_refund(self):
-        """will press the button from sale order to invoice ( with refund)
-        """
+        """will press the button from sale order to invoice ( with refund)"""
         self.ensure_one()
         res = self.order_id._create_invoices(final=True)
-        self.rma_ids.filtered(lambda r: r.operation_id.name=="Refund" and r.state=="confirmed").write({'state':'refunded'})
+        self.rma_ids.filtered(
+            lambda r: r.operation_id.name == "Refund" and r.state == "confirmed"
+        ).write({"state": "refunded"})
         return res
-
-
-
 
     def action_replace(self):
         """Invoked when 'Replace' button in rma form view is clicked."""
         self.ensure_one()
         stock_moves = []
-        original_transfer_to_client = self.order_id.picking_ids.filtered(lambda r: r.picking_type_id.code=='outgoing')[0]
+        original_transfer_to_client = self.order_id.picking_ids.filtered(
+            lambda r: r.picking_type_id.code == "outgoing"
+        )[0]
         for rma in self.rma_ids:
-            if rma.operation_id.name == 'Replace' and rma.state not in ["draft",'cancelled','replaced']: #'refunded'
-                 if rma.product_uom_qty:
-                     stock_moves.append((0,0,{
-                         'name':f'replace of {rma.product_id.name} in rma_group={self.name} rma={rma.name}',
-                         'rma_id':rma.id,
-                         'product_id':rma.product_id.id,
-                         'product_uom_qty':rma.product_uom_qty,
-                         'product_uom':rma.product_uom.id,
-                        'warehouse_id': self.order_id.warehouse_id.id or False,
-                        'partner_id': self.order_id.partner_shipping_id.id,
-                        'company_id': self.order_id.company_id.id,
-                        'sale_line_id':rma.move_id.sale_line_id.id,
-                         }))
-            rma.write({'state':'replaced'})
-        print(f"stock_moves={stock_moves}")            
+            if rma.operation_id.name == "Replace" and rma.state not in [
+                "draft",
+                "cancelled",
+                "replaced",
+            ]:  #'refunded'
+                if rma.product_uom_qty:
+                    stock_moves.append(
+                        (
+                            0,
+                            0,
+                            {
+                                "name": f"replace of {rma.product_id.name} in rma_group={self.name} rma={rma.name}",
+                                "rma_id": rma.id,
+                                "product_id": rma.product_id.id,
+                                "product_uom_qty": rma.product_uom_qty,
+                                "product_uom": rma.product_uom.id,
+                                "warehouse_id": self.order_id.warehouse_id.id or False,
+                                "partner_id": self.order_id.partner_shipping_id.id,
+                                "company_id": self.order_id.company_id.id,
+                                "sale_line_id": rma.move_id.sale_line_id.id,
+                            },
+                        )
+                    )
+            rma.write({"state": "replaced"})
+        print(f"stock_moves={stock_moves}")
         if stock_moves:
-            replace_trans_to_client = self.env['stock.picking'].create({
-                    'partner_id':original_transfer_to_client.partner_id.id,
-                    'picking_type_id':original_transfer_to_client.picking_type_id.id,
-                    'location_id':original_transfer_to_client.location_id.id,
-                    'location_dest_id':original_transfer_to_client.location_dest_id.id,
-#                    'group_id':original_transfer_to_client.group_id.id, # with or without?
-                    'sale_id':self.order_id.id,
-                    'move_lines':stock_moves,
-                    'origin':self.order_id.name,})
-            print(f'created replace_trans_to_client={replace_trans_to_client}')
+            replace_trans_to_client = self.env["stock.picking"].create(
+                {
+                    "partner_id": original_transfer_to_client.partner_id.id,
+                    "picking_type_id": original_transfer_to_client.picking_type_id.id,
+                    "location_id": original_transfer_to_client.location_id.id,
+                    "location_dest_id": original_transfer_to_client.location_dest_id.id,
+                    #                    'group_id':original_transfer_to_client.group_id.id, # with or without?
+                    "sale_id": self.order_id.id,
+                    "move_lines": stock_moves,
+                    "origin": self.order_id.name,
+                }
+            )
+            print(f"created replace_trans_to_client={replace_trans_to_client}")
 
     def copy(self, default=None):
         raise ValidationError("It is not possibe to copy this object")
@@ -310,11 +344,16 @@ class RmaGroup(models.Model):
         for rma in self.rma_ids:
             rma.action_draft()
 
-
-#    original_transfers = = fields.One2many('stock.picking',compute="_compute_group_state")
-    invoices_ids = fields.One2many('account.move','rma_group_id',compute="_compute_group_state")
-    outgoing_transfers_ids =fields.One2many('stock.picking','rma_group_id',compute="_compute_group_state")
-    incomming_tranfers_ids =fields.One2many('stock.picking','rma_group_id',compute="_compute_group_state")
+    #    original_transfers = = fields.One2many('stock.picking',compute="_compute_group_state")
+    invoices_ids = fields.One2many(
+        "account.move", "rma_group_id", compute="_compute_group_state"
+    )
+    outgoing_transfers_ids = fields.One2many(
+        "stock.picking", "rma_group_id", compute="_compute_group_state"
+    )
+    incomming_tranfers_ids = fields.One2many(
+        "stock.picking", "rma_group_id", compute="_compute_group_state"
+    )
 
     def action_view_incomming_transfers(self):
         self.ensure_one()
@@ -324,7 +363,7 @@ class RmaGroup(models.Model):
             .read()[0]
         )
         action.update(
-            domain=[('id','in',self.incomming_tranfers_ids.ids)],
+            domain=[("id", "in", self.incomming_tranfers_ids.ids)],
             res_id=False,
             view_mode="tree,form",
             view_id=False,
@@ -343,7 +382,7 @@ class RmaGroup(models.Model):
             .read()[0]
         )
         action.update(
-            domain=[('id','in',self.outgoing_transfers_ids.ids)],
+            domain=[("id", "in", self.outgoing_transfers_ids.ids)],
             res_id=False,
             view_mode="tree,form",
             view_id=False,
@@ -360,11 +399,10 @@ class RmaGroup(models.Model):
             "view_type": "form",
             "view_mode": "tree,form",
             "res_model": "account.move",
-            "views": False,#[(self.env.ref("account.view_move_form").id, "form")],
+            "views": False,  # [(self.env.ref("account.view_move_form").id, "form")],
             "res_id": False,
-            'domain':[('id','in',self.invoices_ids.ids)],
+            "domain": [("id", "in", self.invoices_ids.ids)],
         }
-
 
     def action_preview(self):
         """Invoked when 'Preview' button in rma form view is clicked."""
@@ -374,4 +412,3 @@ class RmaGroup(models.Model):
             "target": "self",
             "url": self.get_portal_url(),
         }
-        

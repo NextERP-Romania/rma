@@ -2,48 +2,45 @@
  <template
         id="sale_order_portal_template"
         name="Request RMA GROUP"
-        inherit_id="rma_sale.sale_order_portal_template">
+        inherit_id="rma_sale.sale_order_portal_template"
+    >
              <xpath expr="//t[@t-set='data_list']" position="replace">
-                <t t-set="data_list_list"  t-value="sale_order.get_delivery_rma_group_data()"/>
-             	<t t-set="data_list" t-value="data_list_list[0]"/>
+                <t
+                t-set="data_list_list"
+                t-value="sale_order.get_delivery_rma_group_data()"
+            />
+             	<t t-set="data_list" t-value="data_list_list[0]" />
              </xpath>
-             
+
         <xpath expr="//table[@id='request-rma-table']" position="before">
 			                   <t
-                                t-set="reasons"
-                                t-value="sale_order.env['rma.reason'].search([])"
-                            />
+                t-set="reasons"
+                t-value="sale_order.env['rma.reason'].search([])"
+            />
                              <div class="alert alert-danger mb-1 mb-sm-1" role="info">
-                            	<pre t-esc="data_list_list[1]"/>
+                            	<pre t-esc="data_list_list[1]" />
                             </div>
-                            
+
 		</xpath>
           <xpath expr="//tr/th[4]" position="after">
         	<th class="text-left">Reason</th>
-        </xpath> 
+        </xpath>
          <xpath expr="//tr/td[4]" position="after">
                <td class="text-left">
                   <select
-                      t-attf-name="#{data_index}-rma_reason_id"
-                      class="form-control"
-                  >
+                    t-attf-name="#{data_index}-rma_reason_id"
+                    class="form-control"
+                >
                       <option value="">- -</option>
-                      <t
-                          t-foreach="reasons"
-                          t-as="reason"
-                      >
-                          <option
-                              t-att-value="reason.id"
-                          >
-                              <t
-                                  t-esc="reason.name"
-                              />
+                      <t t-foreach="reasons" t-as="reason">
+                          <option t-att-value="reason.id">
+                              <t t-esc="reason.name" />
                           </option>
                       </t>
                     </select>
                  </td>
         </xpath>
- 
+
  </template>
 <!--     <template
         id="sale_order_portal_content"
