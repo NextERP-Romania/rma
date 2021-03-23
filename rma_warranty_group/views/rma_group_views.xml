@@ -83,21 +83,21 @@
                 <header>
                     <button
                         type="object"
-                        string="Create Return Transfers"
+                        string="Accept &amp; Create Return Transfers"
                         name="action_confirm"
                         states="draft"
                         class="btn-primary"
                     />
                     <button
                         type="object"
-                        string="Cancel(Refuse)"
+                        string="Refuse (Cancel)"
                         name="action_cancel"
                         confirm="Are you sure you want to cancel this RMA"
                         states="draft"
                     />
                     <button
                         type="object"
-                        string="Refund Create Retrun Invoice"
+                        string="Create Refund Invoice"
                         name="action_refund"
                         class="btn-primary"
                         help="will press the button from sale order to invoice ( with refund)"
@@ -107,7 +107,7 @@
  -->
                     <button
                         type="object"
-                        string="Replace Make a Delivery"
+                        string="Replace &amp; Make the Delivery"
                         name="action_replace"
                         class="btn-primary"
                         attrs="{'invisible':['|',('can_be_replaced', '=', False),('state','in',['cancel','draft','resolved'])]}"
@@ -203,10 +203,25 @@
 
                     <notebook>
                         <page name="page_other" string="RMA lines">
-                            <field
-                                name="rma_ids"
-                                attrs="{'readonly':[('rma_ids','!=',False)]}"
-                            />
+                            <field  name="rma_ids" attrs="{'readonly':[('rma_ids','!=',False)]}">
+            <tree
+                decoration-muted="state in ['cancelled', 'locked']"
+                decoration-bf="state == 'draft' and product_id == False"
+                decoration-danger="deadline and (deadline &lt; current_date)"
+            >
+                <field name="name" />
+                <field name="origin" optional="hide"/>
+                <field name="user_id" optional="hide"/>
+                <field name="partner_id" optional="hide"/>
+                <field name="deadline" optional="hide"/>
+                
+                <field name="product_id" />
+                <field name="product_uom_qty" />
+                <field name="operation_id" />
+                <field name="description" />
+                <field name="state" />
+            </tree>
+                            </field>
                         </page>
                     </notebook>
                     <field name="sent" invisible="1" />

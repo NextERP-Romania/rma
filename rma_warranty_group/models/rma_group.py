@@ -25,7 +25,7 @@ class RmaGroup(models.Model):
                     else:
                         name = orginal_name + "#1"
                 else:
-                    name =  "RMAG/"+self.env["sale.order"].browse(vals["order_id"]).name
+                    name =  "RMA/"+self.env["sale.order"].browse(vals["order_id"]).name
                 vals["name"] = name
             else:
                 raise ValidationError("You can not create a RMA_group that does not have a order_id")
@@ -144,11 +144,11 @@ class RmaGroup(models.Model):
                 state = "mixt"
             rec.state = state
             if state not in ["draft", "cancelled", "resolved"]:
-                if rec.rma_ids.filtered(lambda r: r.operation_id.name == "Replace"):
+                if rec.rma_ids.filtered(lambda r: r.operation_id.name == "Replace" and r.state!="replaced"):
                     rec.can_be_replaced = 1
                 else:
                     rec.can_be_replaced = 0
-                if rec.rma_ids.filtered(lambda r: r.operation_id.name == "Refund"):
+                if rec.rma_ids.filtered(lambda r: r.operation_id.name == "Refund" and r.state!="refunded"):
                     rec.can_be_refunded = 1
                 else:
                     rec.can_be_refunded = 0
@@ -333,7 +333,7 @@ class RmaGroup(models.Model):
                             },
                         )
                     )
-            rma.write({"state": "replaced"})
+                    rma.write({"state": "replaced"})
         print(f"stock_moves={stock_moves}")
         if stock_moves:
             replace_trans_to_client = self.env["stock.picking"].create(

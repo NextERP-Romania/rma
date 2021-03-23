@@ -13,11 +13,10 @@
              </xpath>
 
         <xpath expr="//table[@id='request-rma-table']" position="before">
-			                   <t
-                t-set="reasons"
-                t-value="sale_order.env['rma.reason'].search([])"
-            />
-                             <div class="alert alert-danger mb-1 mb-sm-1" role="info">
+		 	<t  t-set="reasons"
+                t-value="sale_order.env['rma.reason'].search([])"/>
+ 
+                            <div t-if="data_list_list[1]"  class="alert alert-danger mb-1 mb-sm-1" role="info">
                             	<pre t-esc="data_list_list[1]" />
                             </div>
 

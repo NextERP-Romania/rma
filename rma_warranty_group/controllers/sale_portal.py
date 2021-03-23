@@ -37,9 +37,14 @@ class CustomerPortal(CustomerPortal):
                     "int",
                     "integer",
                 ]:
+                    if not value:
+                        if wizard_line_fields[field_name].type =="many2one":
+                            value=False
+                        else:
+                            value=0
                     value = int(value)
                 elif wizard_line_fields[field_name].type == "float":
-                    value = float(value)
+                    value = float(value if value else 0)
             mapped_vals.setdefault(row, {}).update({field_name: value})
         # If no operation is filled, no RMA will be created
         line_vals = [
