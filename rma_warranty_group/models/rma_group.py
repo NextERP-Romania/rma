@@ -237,12 +237,12 @@ class RmaGroup(models.Model):
             )
             return_wizard._onchange_picking_id()  # is creating all the lines from picking
             for return_move in return_wizard.product_return_moves:
-                move_id = return_move.move_id
-                rma = [x for x in pickings[key] if x.move_id == move_id][0]
+                move_id = return_move.move_id     # here can be a error when you create without a product
+                rma = [x for x in pickings[key] if x.move_id == move_id]
                 if not rma:
                     return_move.unlink()  # this line is not in RMA to return
                 else:
-                    return_move.quantity = rma.product_uom_qty
+                    return_move.quantity = rma[0].product_uom_qty
 
             # set_rma_picking_type is to override the copy() method of stock
             # picking and change the default picking type to rma picking type.
