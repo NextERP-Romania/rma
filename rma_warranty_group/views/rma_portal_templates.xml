@@ -1,24 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-<!--  do not show rma in portal list   cum dracu se face?  trebue sa scot xpath-ul, sa suprascriu cu nimic. scos in baza de date 
-    <template
-        customize_show="True"
-        id="rma.portal_my_home_rma"
-        name="Portal My Home : RMA entries"
-        inherit_id="portal.portal_my_home"
-        priority="30"
-    >
-        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
--->
-<!--     <template
-        id="no_more_rma_in_portal"
-        name="no more rma in portal"
-        inherit_id="portal.portal_my_home"
-        priority="30"
-    >
-        <xpath expr="//a[@href='/my/rmas']" position="replace">
-        </xpath>
-    </template> -->
+<!--  not to show rma_orders in portal list -->
+    <function model="ir.ui.view" name="write">
+           <value model="ir.ui.view" eval="obj().env['ir.ui.view'].search([('type', '=', 'qweb'),('key', '=', 'rma.portal_my_home_rma')]).ids"/>
+            <value eval="{'active': False}"/>
+        </function>
 <!-- rma_group: -->
     <template
         id="portal_my_home_menu_rmag"
