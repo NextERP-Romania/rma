@@ -36,6 +36,7 @@ class RmaGroup(models.Model):
     order_id = fields.Many2one(
         comodel_name="sale.order", string="Sale Order", readonly=1
     )
+    company_id = fields.Many2one(comodel_name="res.company", related="order_id.company_id", store=1, readonly=1)
 
     count_invoices = fields.Integer(compute="_compute_group_state")
     count_outgoing_transfers = fields.Integer(compute="_compute_group_state")

@@ -29,7 +29,7 @@
         "wizard/sale_order_rma_wizard_views.xml",
         "views/rma_portal_templates.xml",
         "views/sale_portal_template.xml",
-        "views/website_views.xml",
+        "views/company_views.xml",
         
         "views/report_rmag.xml",
     ],

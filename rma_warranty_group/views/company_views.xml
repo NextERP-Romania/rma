@@ -1,0 +1,18 @@
+<odoo>
+    <record id="company_rma_return_message_form_view" model="ir.ui.view">
+        <field name="name">company_rma_return_message_form_view</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="priority">160</field>
+        <field name="arch" type="xml">
+            <notebook position="inside">
+            	<page string="RMA">
+            	<group>
+            		
+		            <field name="rma_return_message" />
+            	</group>
+            	</page>
+            </notebook>
+        </field>
+    </record>
+</odoo>

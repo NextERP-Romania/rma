@@ -98,7 +98,7 @@ class PortalRmaGroup(CustomerPortal):
     def portal_my_rmag_detail(
         self, rma_group_id, access_token=None, report_type=None, download=False, **kw
     ):
-        report_type = "html"
+#        report_type = "html"
         try:
             rma_sudo = self._document_check_access(
                 "rma.group", rma_group_id, access_token
@@ -114,7 +114,7 @@ class PortalRmaGroup(CustomerPortal):
             )
 
         values = self._rmag_get_page_view_values(rma_sudo, access_token, **kw)
-        values['rma_return_message'] = request.website.rma_return_message
+        values['rma_return_message'] = rma_sudo.company_id.rma_return_message
         return request.render("rma_warranty_group.portal_rmag_page", values)
 
     @http.route(

@@ -6,6 +6,54 @@
             <value eval="{'active': False}"/>
         </function>
 <!-- rma_group: -->
+					<!--************* rma lines table ************8-->
+	<template id="rma_lines">
+           	<t t-set="rmas" t-value="rmag.rma_ids"/>
+              <table style="width:100%;">
+                <thead>
+                    <tr class="active">
+                        <th>RMA #</th>
+                        <th >Category</th> <!-- Date -->
+                        <th>Product</th>
+                        <th class='text-left'>Quantity</th>
+                        <th class='text-left'>Operation</th>
+                        <th >Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="rmas" t-as="rma">
+                        <tr>
+                            <td>
+                                <a
+                                    t-att-href="rma.get_portal_url()"
+                                    t-att-title="rma.name"
+                                >
+                                    <t t-esc="rma.name" />
+                                </a>
+                            </td>
+                            <td >
+                                <span t-field="rma.sudo().product_id.public_categ_name" /><!-- date -->
+                            </td>
+                            <!-- Portal users don't have access to unpublished products -->
+                            <td>
+                                <span t-esc="rma.sudo().product_id.display_name" />
+                            </td>
+                            <td class='text-right'>
+                                <span t-field="rma.product_uom_qty" />&#160;&#160;&#160;
+                            </td>
+                            <td >
+                                    <span t-field="rma.operation_id.name" />
+                            </td>
+                            <td >
+                                    <span t-field="rma.state" />
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+              </table>
+	</template>
+
+
     <template
         id="portal_my_home_menu_rmag"
         name="Portal layout : RMA menu entries"
@@ -207,54 +255,12 @@
                         </div>
                     </div>
                     <section  style="page-break-inside: auto;" class="mt32">
-						<b t-esc="rma_return_message"/>
+						<b><pre t-esc="rma_return_message"/></b>
 					</section>
 
 		<!-- *************TABLE WITH RMA LINES ************************** -->
                     <section  style="page-break-inside: auto;" class="mt32">
-                    	<t t-set="rmas" t-value="rmag.rma_ids"/>
-              <table style="width:100%;">
-                <thead>
-                    <tr class="active">
-                        <th>RMA #</th>
-                        <th class='d-none d-md-table-cell'>Date</th>
-                        <th>Product</th>
-                        <th class='text-left'>Quantity</th>
-                        <th class='text-left'>Operation</th>
-                        <th class='d-none d-md-table-cell'>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <t t-foreach="rmas" t-as="rma">
-                        <tr>
-                            <td>
-                                <a
-                                    t-att-href="rma.get_portal_url()"
-                                    t-att-title="rma.name"
-                                >
-                                    <t t-esc="rma.name" />
-                                </a>
-                            </td>
-                            <td class="d-none d-md-table-cell">
-                                <span t-field="rma.date" />
-                            </td>
-                            <!-- Portal users don't have access to unpublished products -->
-                            <td>
-                                <span t-esc="rma.sudo().product_id.display_name" />
-                            </td>
-                            <td class='text-right'>
-                                <span t-field="rma.product_uom_qty" />&#160;&#160;&#160;
-                            </td>
-                            <td >
-                                    <span t-field="rma.operation_id.name" />
-                            </td>
-                            <td class="d-none d-md-table-cell tx_status">
-                                    <span t-field="rma.state" />
-                            </td>
-                        </tr>
-                    </t>
-                </tbody>
-              </table>
+						<t t-call='rma_warranty_group.rma_lines'/>
                     </section >
                     <!--  *****************TEXT FOR RETURNS ***************** -->
                     
