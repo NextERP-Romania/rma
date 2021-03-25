@@ -50,8 +50,10 @@
             <t t-call="portal.portal_searchbar">
                 <t t-set="title">RMA Group Orders</t>
             </t>
-            <t t-if="rmags" t-call="portal.portal_table">
-                <thead>
+<!--             <t t-if="rmags" t-call="portal.portal_table">
+ -->
+ 			<table style="width:100%;">
+                 <thead>
                     <tr class="active">
                         <th>RMA Group #</th>
                         <th class='d-none d-md-table-cell'>Date</th>
@@ -80,7 +82,7 @@
                         </tr>
                     </t>
                 </tbody>
-            </t>
+            </table>
         </t>
     </template>
     <template id="portal_rmag_page" name="My RMA Group">
@@ -205,14 +207,20 @@
                         </div>
                     </div>
                     <section  style="page-break-inside: auto;" class="mt32">
+						<b t-esc="rma_return_message"/>
+					</section>
+
+		<!-- *************TABLE WITH RMA LINES ************************** -->
+                    <section  style="page-break-inside: auto;" class="mt32">
                     	<t t-set="rmas" t-value="rmag.rma_ids"/>
-                    	<table>
-                    	                <thead>
+              <table style="width:100%;">
+                <thead>
                     <tr class="active">
                         <th>RMA #</th>
                         <th class='d-none d-md-table-cell'>Date</th>
                         <th>Product</th>
-                        <th class='text-right'>Quantity</th>
+                        <th class='text-left'>Quantity</th>
+                        <th class='text-left'>Operation</th>
                         <th class='d-none d-md-table-cell'>Status</th>
                     </tr>
                 </thead>
@@ -235,18 +243,21 @@
                                 <span t-esc="rma.sudo().product_id.display_name" />
                             </td>
                             <td class='text-right'>
-                                <span t-field="rma.product_uom_qty" />
+                                <span t-field="rma.product_uom_qty" />&#160;&#160;&#160;
+                            </td>
+                            <td >
+                                    <span t-field="rma.operation_id.name" />
                             </td>
                             <td class="d-none d-md-table-cell tx_status">
-                                <span class="badge badge-pill badge-secondary">
                                     <span t-field="rma.state" />
-                                </span>
                             </td>
                         </tr>
                     </t>
                 </tbody>
-                    	</table>
+              </table>
                     </section >
+                    <!--  *****************TEXT FOR RETURNS ***************** -->
+                    
                     <!--  **************RETUR TRANSFERS ****************88 -->
                      <section
                         t-if="rmag.incomming_tranfers_ids"

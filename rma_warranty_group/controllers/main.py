@@ -98,6 +98,7 @@ class PortalRmaGroup(CustomerPortal):
     def portal_my_rmag_detail(
         self, rma_group_id, access_token=None, report_type=None, download=False, **kw
     ):
+        report_type = "html"
         try:
             rma_sudo = self._document_check_access(
                 "rma.group", rma_group_id, access_token
@@ -108,11 +109,12 @@ class PortalRmaGroup(CustomerPortal):
             return self._show_report(
                 model=rma_sudo,
                 report_type=report_type,
-                report_ref="rma_group.report_rma_group_action",
+                report_ref="rma_warranty_group.report_rmag_action",
                 download=download,
             )
 
         values = self._rmag_get_page_view_values(rma_sudo, access_token, **kw)
+        values['rma_return_message'] = request.website.rma_return_message
         return request.render("rma_warranty_group.portal_rmag_page", values)
 
     @http.route(
@@ -149,3 +151,4 @@ class PortalRmaGroup(CustomerPortal):
             if not access_token or not consteq(rma.access_token, access_token):
                 raise
         return picking_sudo
+    

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="rma_warranty_group.report_rma_document">
+        <t t-call="web.external_layout">
+            <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)" />
+            <t t-if="doc.partner_id">
+                <t t-set="address">
+                    <div
+                        t-field="doc.partner_id"
+                        t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'
+                    />
+                    <p t-if="doc.partner_id.vat"><t
+                            t-esc="doc.company_id.country_id.vat_label or 'Tax ID'"
+                        />: <span t-field="doc.partner_id.vat" /></p>
+                </t>
+            </t>
+            <t t-set="rmag" t-value="doc"/>
+                    <div id="general_information">
+                        <div class="row mt4">
+                            <div class="col-12 col-md-6 mb-4 mb-md-0">
+                                <h6>
+                                    <strong>Customer:</strong>
+                                </h6>
+                                <div class="row">
+                                    <div class="col flex-grow-0 pr-3">
+                                    </div>
+                                    <div class="col pl-sm-0">
+                                        <address
+                                            t-field="rmag.partner_id"
+                                            t-options='{"widget": "contact", "fields": ["name", "email", "phone"]}'
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row mt32" id="Sale_order">
+                            <div class="col-12 col-md-6 mb-4 mb-md-0">
+                                <div t-if="rmag.order_id" class="row mb-2 mb-sm-1">
+                                    <div class="col-12 col-sm-4">
+                                        <strong>Sale Order</strong>
+                                    </div>
+                                    <div class="col-12 col-sm-8">
+                                        <span t-field="rmag.order_id" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div t-if="rmag.date" class="row mb-2 mb-sm-1">
+                                    <div class="col-12 col-sm-4">
+                                        <strong>RMA Group Date</strong>
+                                    </div>
+                                    <div class="col-12 col-sm-8">
+                                        <span
+                                            t-field="rmag.date"
+                                            t-options='{"widget": "date"}'
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <section  style="page-break-inside: auto;" class="mt32">
+						<b t-esc="rma_return_message"/>rr
+					</section>
+
+		<!-- *************TABLE WITH RMA LINES ************************** -->
+                    <section  style="page-break-inside: auto;" class="mt32">
+                    	<t t-set="rmas" t-value="rmag.rma_ids"/>
+              <table style="width:100%;">
+                <thead>
+                    <tr class="active">
+                        <th>RMA #</th>
+                        <th class='d-none d-md-table-cell'>Date</th>
+                        <th>Product</th>
+                        <th class='text-left'>Quantity</th>
+                        <th class='text-left'>Operation</th>
+                        <th class='d-none d-md-table-cell'>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="rmas" t-as="rma">
+                        <tr>
+                            <td>
+                                <a
+                                    t-att-href="rma.get_portal_url()"
+                                    t-att-title="rma.name"
+                                >
+                                    <t t-esc="rma.name" />
+                                </a>
+                            </td>
+                            <td class="d-none d-md-table-cell">
+                                <span t-field="rma.date" />
+                            </td>
+                            <!-- Portal users don't have access to unpublished products -->
+                            <td>
+                                <span t-esc="rma.sudo().product_id.display_name" />
+                            </td>
+                            <td class='text-right'>
+                                <span t-field="rma.product_uom_qty" />&#160;&#160;&#160;
+                            </td>
+                            <td >
+                                    <span t-field="rma.operation_id.name" />
+                            </td>
+                            <td class="d-none d-md-table-cell tx_status">
+                                    <span t-field="rma.state" />
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+              </table>
+                    </section >
+
+
+		</t>            
+    </template>
+
+    <template id="report_rmag">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="rma_warranty_group.report_rma_document" t-lang="doc.partner_id.lang" />
+            </t>
+        </t>
+    </template>
+</odoo>

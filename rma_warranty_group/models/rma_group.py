@@ -25,7 +25,7 @@ class RmaGroup(models.Model):
                     else:
                         name = orginal_name + "#1"
                 else:
-                    name =  "RMA/"+self.env["sale.order"].browse(vals["order_id"]).name
+                    name =  "RMA_"+self.env["sale.order"].browse(vals["order_id"]).name
                 vals["name"] = name
             else:
                 raise ValidationError("You can not create a RMA_group that does not have a order_id")
@@ -430,3 +430,7 @@ class RmaGroup(models.Model):
             "target": "self",
             "url": self.get_portal_url(),
         }
+        
+    def _get_report_base_filename(self):
+        self.ensure_one()
+        return f"{fields.datetime.now().strftime('%Y%m%d%H')} {self.name}" 
