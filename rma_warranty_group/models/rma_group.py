@@ -300,7 +300,7 @@ class RmaGroup(models.Model):
                     }
                 )
         invoice.ref=self.name
-
+        invoice.action_post()
         return invoice
 
     def action_replace(self):

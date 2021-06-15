@@ -3,6 +3,7 @@ from odoo import api, models
 
 class RerpotAlsoWithOtherValue(models.AbstractModel):
     _name="report.rma_warranty_group.report_rmag"
+    _description="just some messages for report"
 
     @api.model
     def _get_report_values(self, docids, data=None):
