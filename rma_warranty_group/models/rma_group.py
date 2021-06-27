@@ -212,7 +212,7 @@ class RmaGroup(models.Model):
 
     def action_confirm(self):
         """Invoked when 'Confirm' button in rma form view is clicked.
-        will call the _crate_reception_from_picking and _from_product  in rma
+        will call the _create_reception_from_picking and _from_product  in rma
         """
         self.ensure_one()
         if not self.state == "draft" and not self.rma_ids:
@@ -253,7 +253,7 @@ class RmaGroup(models.Model):
             picking_id = picking_action["res_id"]
             print(f"created returned picking={picking_id}")
             picking = self.env["stock.picking"].browse(picking_id)
-            picking.origin = "{} ({})".format(self.name, picking.origin)
+            picking.write({'origin': "{} ({})".format(self.name, picking.origin),'rma_group_id':self.id   })
             for rma in pickings[key]:
                 rma.write(
                     {
@@ -269,18 +269,23 @@ class RmaGroup(models.Model):
                     rma.message_subscribe([self.partner_id.id])
         return
 
-    def action_refund(self):
-        """will press the button from sale order to invoice ( with refund)"""
+    def action_refund(self,called_from_sale_order_create_invoice=False,super_create_invoices=False): 
+        """will press the button "create invoice" from sale order to invoice 
+          is a problem if you press in sale order this button becuse is not going to record the inovice in this rma
+          when called with parameter called_from_sale_order_create_invoice means that is called from _create_invoices from sale order and will call the super ( otherwise will be a loop)
+        """
         self.ensure_one()
         refund_lines = self.rma_ids.filtered(lambda r: r.state == "received" and r.operation_id.name=="Refund")
         product_dict = {x.product_id.id:x for x in refund_lines}
         if  not refund_lines:
             raise ValidationError("Is no line that has state=='received' and operation_id.name=='Refund'")
-#        invoice = self.rma_ids.action_refund()  # not woking not giving the same values as in sale
-        invoice = self.order_id._create_invoices(final=True)
+        if called_from_sale_order_create_invoice:
+            invoice = super_create_invoices(final=True)
+        else:
+            invoice = self.order_id._create_invoices(final=True,from_action_refund=True)  # new created invoice for return
         if invoice.move_type != 'out_refund':
             raise ValidationError(f"The return invoice must be type 'out_refund' but is {invoice.move_type}")
-        invoice_lines = {}
+        invoice_lines = {}  # dictionay with key  line of invoice and value the rma object ( rma not rma_group)
         for line in invoice.invoice_line_ids:
             if line.product_id.id not in product_dict:
                 line.unlink()
@@ -292,10 +297,10 @@ class RmaGroup(models.Model):
         if  len(invoice_lines) != len(product_dict):
             raise ValidationError(f"Some lines are not in return invoice. please do it manually.\nIn Invoice:{[x.product_id.name for x in invoice.invoice_line_ids]}\nIn RMA:{[product_dict[x].product_id.name for x in product_dict]}")
         for key  in invoice_lines:
-            invoice_lines[key].write(
+            invoice_lines[key].write(  # we are writing in rma the invoice_line, invoice and state
                     {
                         "refund_line_id": key,
-                        "refund_id": invoice.id,
+                        "refund_id": invoice.id,  # must be the original invoice
                         "state": "refunded",
                     }
                 )
@@ -350,6 +355,7 @@ class RmaGroup(models.Model):
                 }
             )
             print(f"created replace_trans_to_client={replace_trans_to_client}")
+            replace_trans_to_client.action_confirm()  # mark as to do, not draft order anymore
 
     def copy(self, default=None):
         raise ValidationError("It is not possibe to copy this object")

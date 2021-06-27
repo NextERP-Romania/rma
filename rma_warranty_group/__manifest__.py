@@ -6,8 +6,10 @@
     "description": """ now the RMA's have groups
     like in wizard and you are able to process more RMA at once
     in wizard you are going to have only products that are in warranty period
+    
+    show also rma_group_id in stock_picking
     """,
-    "version": "14.0.0.1.0",
+    "version": "14.0.0.1.1",
     "development_status": "Development",
     "category": "RMA",
     "website": "https://github.com/OCA/rma",
@@ -32,6 +34,7 @@
         "views/company_views.xml",
         
         "views/report_rmag.xml",
+        "views/stock_picking.xml",
     ],
     "application": False,
 }

@@ -26,6 +26,19 @@ class SaleOrder(models.Model):
         for record in self:
             record.rma_group_count = mapped_data.get(record.id, 0)
 
+    def _create_invoices(self, grouped=False, final=False, date=None,from_action_refund=False):
+        if from_action_refund:
+            self._create_invoices(grouped=grouped, final=final, date=date)
+        rma = self.env['rma']
+        for rec in self:
+            active_rmas_for_refund = rma.search([('order_id','=',rec.id),('state','=','received'),('operation_id.name','=',"Refund")])
+            if active_rmas_for_refund and active_rmas_for_refund[0].rma_group_id:
+                super_create_invoices = super()._create_invoices
+                ret = active_rmas_for_refund[0].rma_group_id.action_refund(called_from_sale_order_create_invoice=True,super_create_invoices=super_create_invoices)
+            else:
+                ret = self._create_invoices(grouped=grouped, final=final, date=date)
+        return ret
+
     def action_create_rma_group(self):
         self.ensure_one()
         if self.state not in ["sale", "done"]:
@@ -102,9 +115,8 @@ class SaleOrder(models.Model):
             #            data += line.prepare_sale_rma_data()
             product = line.product_id
             if product.type != "product":
-                description += (
-                    f"- product {product.name} not stockable is type {product.type}\n"
-                )
+                # commented the client does not want this alert
+                #description += ( f"- product {product.name} not stockable is type {product.type}\n")
                 continue
             moves = line.move_ids.filtered(
                 lambda r: (
