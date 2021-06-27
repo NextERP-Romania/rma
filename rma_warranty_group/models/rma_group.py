@@ -356,6 +356,7 @@ class RmaGroup(models.Model):
             )
             print(f"created replace_trans_to_client={replace_trans_to_client}")
             replace_trans_to_client.action_confirm()  # mark as to do, not draft order anymore
+            replace_trans_to_client.action_assign() # to put also the quanitties
 
     def copy(self, default=None):
         raise ValidationError("It is not possibe to copy this object")
