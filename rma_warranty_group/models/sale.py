@@ -36,7 +36,7 @@ class SaleOrder(models.Model):
                 super_create_invoices = super()._create_invoices
                 ret = active_rmas_for_refund[0].rma_group_id.action_refund(called_from_sale_order_create_invoice=True,super_create_invoices=super_create_invoices)
             else:
-                ret = self._create_invoices(grouped=grouped, final=final, date=date)
+                ret = super()._create_invoices(grouped=grouped, final=final, date=date)
         return ret
 
     def action_create_rma_group(self):
