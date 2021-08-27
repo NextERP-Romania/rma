@@ -140,7 +140,8 @@ class SaleOrder(models.Model):
                     if fields.datetime.today() > warranty_till:
                         description += f"- product {product.name} is not anymore in warranty, warranty ended {warranty_till}"
                         continue
-                    initial_qty, qty = move.product_uom_qty
+                    qty = move.product_uom_qty
+                    initial_qty = qty
                     move_dest = move.move_dest_ids.filtered(
                         lambda r: r.state in ["partially_available", "assigned", "done"]
                     )
