@@ -140,7 +140,7 @@ class SaleOrder(models.Model):
                     if fields.datetime.today() > warranty_till:
                         description += f"- product {product.name} is not anymore in warranty, warranty ended {warranty_till}"
                         continue
-                    qty = move.product_uom_qty
+                    initial_qty, qty = move.product_uom_qty
                     move_dest = move.move_dest_ids.filtered(
                         lambda r: r.state in ["partially_available", "assigned", "done"]
                     )
@@ -154,5 +154,7 @@ class SaleOrder(models.Model):
                             "picking": move.picking_id,
                         }
                     )
+            if qty <=0 :
+                description += f"- product {product.name} has with initial qty={initial_qty} and has present qty <=0 so must be returned/to_refund\n"
 
         return data, description

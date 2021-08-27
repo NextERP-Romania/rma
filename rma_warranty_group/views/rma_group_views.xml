@@ -218,6 +218,7 @@
                 <field name="product_id" />
                 <field name="product_uom_qty" />
                 <field name="operation_id" />
+                <field name="rma_reason_id" />
                 <field name="description" />
                 <field name="state" />
             </tree>

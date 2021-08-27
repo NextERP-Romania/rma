@@ -255,7 +255,7 @@
                         </div>
                     </div>
                     <section  style="page-break-inside: auto;" class="mt32">
-						<b><pre t-esc="rma_return_message"/></b>
+						<div><pre t-raw="rma_return_message"/></div>
 					</section>
 
 		<!-- *************TABLE WITH RMA LINES ************************** -->

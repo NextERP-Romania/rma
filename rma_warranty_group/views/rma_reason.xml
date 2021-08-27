@@ -12,12 +12,32 @@
         <field name="name">rma_reason_tree</field>
         <field name="model">rma.reason</field>
         <field name="arch" type="xml">
-            <tree editable="top">
-                <field name="name" />
+            <tree>
+<!--            <tree editable="top">
+-->                <field name="name" />
+                    <field name="active" />
             </tree>
         </field>
     </record>
 
+   <record id="rma_reason_form" model="ir.ui.view">
+        <field name="name">rma_reason_tree</field>
+        <field name="model">rma.reason</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name" />
+                        <field name="active" />
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>  
+            </form>
+        </field>
+    </record>
     <record id="rma_reason" model="ir.actions.act_window">
         <field name="name">Rma Reasons</field>
         <field name="res_model">rma.reason</field>

@@ -96,7 +96,7 @@
 					 <section  style="page-break-inside: auto;" class="mt32">
 					 <br /><br />
 					 <div class="well">
-						<h2><b><pre t-esc="rma_return_message"/></b></h2>
+						<h2><b><pre t-raw="rma_return_message"/></b></h2>
 					</div>
 					</section>
 

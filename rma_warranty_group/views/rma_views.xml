@@ -34,17 +34,15 @@
     </record>
 
     <record id="rma_also_group_view_form" model="ir.ui.view">
-        <field name="name">rma.also.group.view.form</field>
+        <field name="name">rma_also_group_view_form</field>
         <field name="model">rma</field>
         <field name="inherit_id" ref="rma.rma_view_form" />
-        <field name="priority" eval="100" />
+<!--        <field name="priority" eval="100" />-->
         <field name="arch" type="xml">
-                <field name="partner_id" position="after">
+                <xpath expr="//field[@name='company_id']" position="before">
                     <filed name="rma_group_id" />
-                </field>
-                <field name="operation_id" position="after">
                     <filed name="rma_reason_id" />
-                </field>
+                </xpath>
         </field>
     </record>
 

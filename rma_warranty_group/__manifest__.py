@@ -8,8 +8,11 @@
     in wizard you are going to have only products that are in warranty period
     
     show also rma_group_id in stock_picking
+    
+    v0.2 now rma reason is required, and what is not set till now is going to be 'no_reason_just_state_for_before_rma_reason_required' that is default inactive
+        if a clinet has a rma that is confirmd will show alert when he is doing another RMA to know why he can not put the product in anohter rma
     """,
-    "version": "14.0.0.1.1",
+    "version": "14.0.0.2.",
     "development_status": "Development",
     "category": "RMA",
     "website": "https://github.com/OCA/rma",
@@ -22,6 +25,8 @@
         "security/ir.model.access.csv",
         "report/report.xml",
         "data/mail_data.xml",
+        "data/default_rma_reason.xml",
+        
         "views/rma_operation.xml",
         "views/res_partner_views.xml",
         "views/rma_group_views.xml",

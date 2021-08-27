@@ -7,7 +7,7 @@
         <field name="mode">primary</field>
         <field name="arch" type="xml">
             <field name="operation_id" position="after">
-                 <field name="rma_reason_id" />
+                 <field name="rma_reason_id" required="1"/>
             </field>
             <footer position="before">
                 <field name="description" />
