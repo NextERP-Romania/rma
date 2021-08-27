@@ -155,7 +155,7 @@ class SaleOrder(models.Model):
                             "picking": move.picking_id,
                         }
                     )
-            if qty <=0 :
-                description += f"- product {product.name} has with initial qty={initial_qty} and has present qty <=0 so must be returned/to_refund\n"
+                if qty <=0 :
+                    description += f"- product {product.name} has with initial qty={initial_qty} and has present qty <=0 so must be returned/to_refund\n"
 
         return data, description
