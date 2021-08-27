@@ -137,10 +137,10 @@ class SaleOrder(models.Model):
                     warranty_till = move.date + timedelta(
                         days=product.product_tmpl_id.get_warranty_days(move.partner_id)
                     )
+                    qty = move.product_uom_qty
                     if fields.datetime.today() > warranty_till:
                         description += f"- product {product.name} is not anymore in warranty, warranty ended {warranty_till}"
                         continue
-                    qty = move.product_uom_qty
                     initial_qty = qty
                     move_dest = move.move_dest_ids.filtered(
                         lambda r: r.state in ["partially_available", "assigned", "done"]
