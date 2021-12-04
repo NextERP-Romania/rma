@@ -10,6 +10,8 @@ class RmaGroup(models.Model):
 
     def create(self, vals):
         
+            if type(vals) is list:
+                vals = vals[0]
             if "order_id" in vals:
                 latest_rma = self.search_read(
                     [("order_id", "=", vals["order_id"])],
