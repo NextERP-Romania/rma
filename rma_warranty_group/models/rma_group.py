@@ -124,8 +124,8 @@ class RmaGroup(models.Model):
         help="if this is true, means that we do not need to do anything with this group"
     )
 
-    can_be_replaced = fields.Boolean(compute="_compute_group_state", store=1)
-    can_be_refunded = fields.Boolean(compute="_compute_group_state", store=1)
+    can_be_replaced = fields.Boolean(compute="_compute_group_state")
+    can_be_refunded = fields.Boolean(compute="_compute_group_state")
 
     @api.depends("rma_ids", "rma_ids.state")
     def _compute_group_state(self):
@@ -146,15 +146,13 @@ class RmaGroup(models.Model):
             else:
                 state = "mixt"
             rec.state = state
+            can_be_replaced = 0
+            can_be_refunded = 0
             if state not in ["draft", "cancelled", "resolved"]:
-                if rec.rma_ids.filtered(lambda r: r.operation_id.name == "Replace" and r.state!="replaced"):
-                    rec.can_be_replaced = 1
-                else:
-                    rec.can_be_replaced = 0
-                if rec.rma_ids.filtered(lambda r: r.operation_id.name == "Refund" and r.state!="refunded"):
-                    rec.can_be_refunded = 1
-                else:
-                    rec.can_be_refunded = 0
+                if rec.rma_ids.filtered(lambda r: r.operation_id.name in [ "Replace","Inlocuire" ] and r.state!="replaced"):
+                    can_be_replaced = 1
+                if rec.rma_ids.filtered(lambda r: r.operation_id.name in ["Refund","Storno"] and r.state!="refunded"):
+                    can_be_refunded = 1
             invoices_ids, outgoing_transfers_ids, incomming_tranfers_ids = [], [], []
             for rma in self.rma_ids:
                 invoices_ids.extend([rma.refund_id.id] if rma.refund_id else [])
@@ -166,12 +164,17 @@ class RmaGroup(models.Model):
                 outgoing_transfers_ids.extend(
                     [x.picking_id.id for x in rma.delivery_move_ids]
                 )
-            rec.invoices_ids = [(6, 0, set(invoices_ids))]
-            rec.count_invoices = len(set(invoices_ids))
-            rec.outgoing_transfers_ids = [(6, 0, set(outgoing_transfers_ids))]
-            rec.count_outgoing_transfers = len(set(outgoing_transfers_ids))
-            rec.incomming_tranfers_ids = [(6, 0, set(incomming_tranfers_ids))]
-            rec.count_incomming_tranfers = len(set(incomming_tranfers_ids))
+            rec.write({
+                "can_be_replaced": can_be_replaced,
+                "can_be_refunded": can_be_refunded,
+                
+                "invoices_ids": [(6, 0, set(invoices_ids))],
+                "count_invoices": len(set(invoices_ids)),
+                "outgoing_transfers_ids": [(6, 0, set(outgoing_transfers_ids))],
+                "count_outgoing_transfers": len(set(outgoing_transfers_ids)),
+                "incomming_tranfers_ids": [(6, 0, set(incomming_tranfers_ids))],
+                "count_incomming_tranfers": len(set(incomming_tranfers_ids))
+            })
  
     @api.returns("mail.message", lambda value: value.id)
     def message_post(self, **kwargs):
@@ -255,7 +258,7 @@ class RmaGroup(models.Model):
             picking_id = picking_action["res_id"]
             print(f"created returned picking={picking_id}")
             picking = self.env["stock.picking"].browse(picking_id)
-            picking.write({'origin': "{} ({})".format(self.name, picking.origin),'rma_group_id':self.id   })
+            picking.write({'origin': f"{self.name} ({picking.origin})",'rma_group_id':self.id   })
             for rma in pickings[key]:
                 rma.write(
                     {
@@ -273,18 +276,21 @@ class RmaGroup(models.Model):
 
     def action_refund(self,called_from_sale_order_create_invoice=False,super_create_invoices=False): 
         """will press the button "create invoice" from sale order to invoice 
-          is a problem if you press in sale order this button becuse is not going to record the inovice in this rma
-          when called with parameter called_from_sale_order_create_invoice means that is called from _create_invoices from sale order and will call the super ( otherwise will be a loop)
+          is a problem if you press in sale order this button becuse is not going to record the inovice in this rma_group
+          when called with parameter called_from_sale_order_create_invoice means that is called from _create_invoices 
+          from sale order and will call the super ( otherwise will be a loop)
         """
         self.ensure_one()
-        refund_lines = self.rma_ids.filtered(lambda r: r.state == "received" and r.operation_id.name=="Refund")
+        refund_lines = self.rma_ids.filtered(lambda r: r.state == "received" and r.operation_id.name  in ["Refund","Storno"])
         product_dict = {x.product_id.id:x for x in refund_lines}
         if  not refund_lines:
-            raise ValidationError("Is no line that has state=='received' and operation_id.name=='Refund'")
+            raise ValidationError("Is no line that has state=='received' and operation_id.name  in ['Refund','Storno']  ")
         if called_from_sale_order_create_invoice:
             invoice = super_create_invoices(final=True)
         else:
-            invoice = self.order_id._create_invoices(final=True,from_action_refund=True)  # new created invoice for return
+            # 20220120 I do not why wee need more than simple pressing the button from sale_order
+            #invoice = self.order_id._create_invoices(final=True,from_action_refund=True)  # new created invoice for return
+            invoice = self.order_id._create_invoices(final=True)  # new created invoice for return
         if invoice.move_type != 'out_refund':
             raise ValidationError(f"The return invoice must be type 'out_refund' but is {invoice.move_type}")
         invoice_lines = {}  # dictionay with key  line of invoice and value the rma object ( rma not rma_group)
@@ -318,7 +324,7 @@ class RmaGroup(models.Model):
             lambda r: r.picking_type_id.code == "outgoing"
         )[0]
         for rma in self.rma_ids:
-            if rma.operation_id.name == "Replace" and rma.state not in [
+            if rma.operation_id.name  in [ "Replace","Inlocuire" ] and rma.state not in [
                 "draft",
                 "cancelled",
                 "replaced",
@@ -386,7 +392,7 @@ class RmaGroup(models.Model):
     def action_view_incomming_transfers(self):
         self.ensure_one()
         action = (
-            self.env.ref("stock.action_picking_tree_all")
+            self.sudo().env.ref("stock.action_picking_tree_all")
             .with_context(active_id=self.id)
             .read()[0]
         )
@@ -405,7 +411,7 @@ class RmaGroup(models.Model):
         # Force active_id to avoid issues when coming from smart buttons
         # in other models
         action = (
-            self.env.ref("stock.action_picking_tree_all")
+            self.sudo().env.ref("stock.action_picking_tree_all")
             .with_context(active_id=self.id)
             .read()[0]
         )

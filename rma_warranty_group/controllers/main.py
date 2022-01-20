@@ -2,6 +2,8 @@ from odoo import _, exceptions, http
 from odoo.exceptions import AccessError, MissingError
 from odoo.http import request
 from odoo.tools import consteq
+import logging
+_logger = logging.getLogger(__name__)
 
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
 
@@ -60,6 +62,7 @@ class PortalRmaGroup(CustomerPortal):
             ]
         # count for pager
         rma_group_count = rma_group_obj.search_count(domain)
+        _logger.info('***this is the domain that is too stressful for database: '+str(domain))
         # pager
         pager = portal_pager(
             url="/my/rmags",

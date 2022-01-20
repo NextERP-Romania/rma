@@ -26,18 +26,18 @@ class SaleOrder(models.Model):
         for record in self:
             record.rma_group_count = mapped_data.get(record.id, 0)
 
-    def _create_invoices(self, grouped=False, final=False, date=None,from_action_refund=False):
-        if from_action_refund:
-            self._create_invoices(grouped=grouped, final=final, date=date)
-        rma = self.env['rma']
-        for rec in self:
-            active_rmas_for_refund = rma.search([('order_id','=',rec.id),('state','=','received'),('operation_id.name','=',"Refund")])
-            if active_rmas_for_refund and active_rmas_for_refund[0].rma_group_id:
-                super_create_invoices = super()._create_invoices
-                ret = active_rmas_for_refund[0].rma_group_id.action_refund(called_from_sale_order_create_invoice=True,super_create_invoices=super_create_invoices)
-            else:
-                ret = super()._create_invoices(grouped=grouped, final=final, date=date)
-        return ret
+    # def _create_invoices(self, grouped=False, final=False, date=None,from_action_refund=False):
+        # if from_action_refund:
+            # self._create_invoices(grouped=grouped, final=final, date=date)
+        # rma = self.env['rma']
+        # for rec in self:
+            # active_rmas_for_refund = rma.search([('order_id','=',rec.id),('state','=','received'),('operation_id.name','in',["Refund","Storno"])])
+            # if active_rmas_for_refund and active_rmas_for_refund[0].rma_group_id:
+                # super_create_invoices = super()._create_invoices
+                # ret = active_rmas_for_refund[0].rma_group_id.action_refund(called_from_sale_order_create_invoice=True,super_create_invoices=super_create_invoices)
+            # else:
+                # ret = super()._create_invoices(grouped=grouped, final=final, date=date)
+        # return ret
 
     def action_create_rma_group(self):
         self.ensure_one()

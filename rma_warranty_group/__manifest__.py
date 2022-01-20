@@ -12,8 +12,10 @@
     v0.2 now rma reason is required, and what is not set till now is going to be 'no_reason_just_state_for_before_rma_reason_required' that is default inactive
         if a client has a rma that is confirmed will show alert when he is doing another RMA to know why he can not put the product in anohter rma
         put tracking name and active filed on rma_reasons
+    v0.3 The posible Rma operation that are defined ( you have some button to do something) are:
+          [ "Replace","Inlocuire" ]   /  ["Refund","Storno"] 
     """,
-    "version": "14.0.0.2.",
+    "version": "14.0.0.3.",
     "development_status": "Development",
     "category": "RMA",
     "website": "https://github.com/OCA/rma",
