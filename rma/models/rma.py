@@ -125,7 +125,7 @@ class Rma(models.Model):
         required=True,
         readonly=True,
         states={"draft": [("readonly", False)]},
-        default=lambda self: self.env.ref("uom.product_uom_unit").id,
+        default=lambda self: self.sudo().env.ref("uom.product_uom_unit").id,
     )
     procurement_group_id = fields.Many2one(
         comodel_name="procurement.group",
@@ -532,8 +532,8 @@ class Rma(models.Model):
     # Action methods
     def action_rma_send(self):
         self.ensure_one()
-        template = self.env.ref("rma.mail_template_rma_notification", False)
-        form = self.env.ref("mail.email_compose_message_wizard_form", False)
+        template = self.sudo().env.ref("rma.mail_template_rma_notification", False)
+        form = self.sudo().env.ref("mail.email_compose_message_wizard_form", False)
         ctx = {
             "default_model": "rma",
             "default_res_id": self.ids[0],
@@ -610,7 +610,7 @@ class Rma(models.Model):
             refund.message_post_with_view(
                 "mail.message_origin_link",
                 values={"self": refund, "origin": rmas},
-                subtype_id=self.env.ref("mail.mt_note").id,
+                subtype_id=self.sudo().env.ref("mail.mt_note").id,
             )
 
     def action_replace(self):
@@ -620,7 +620,7 @@ class Rma(models.Model):
         # Force active_id to avoid issues when coming from smart buttons
         # in other models
         action = (
-            self.env.ref("rma.rma_delivery_wizard_action")
+            self.sudo().env.ref("rma.rma_delivery_wizard_action")
             .with_context(active_id=self.id)
             .read()[0]
         )
@@ -642,7 +642,7 @@ class Rma(models.Model):
         # Force active_id to avoid issues when coming from smart buttons
         # in other models
         action = (
-            self.env.ref("rma.rma_delivery_wizard_action")
+            self.sudo().env.ref("rma.rma_delivery_wizard_action")
             .with_context(active_id=self.id)
             .read()[0]
         )
@@ -661,7 +661,7 @@ class Rma(models.Model):
         # Force active_id to avoid issues when coming from smart buttons
         # in other models
         action = (
-            self.env.ref("rma.rma_split_wizard_action")
+            self.sudo().env.ref("rma.rma_split_wizard_action")
             .with_context(active_id=self.id)
             .read()[0]
         )
@@ -702,7 +702,7 @@ class Rma(models.Model):
         # Force active_id to avoid issues when coming from smart buttons
         # in other models
         action = (
-            self.env.ref("stock.action_picking_tree_all")
+            self.sudo().env.ref("stock.action_picking_tree_all")
             .with_context(active_id=self.id)
             .read()[0]
         )
@@ -723,14 +723,14 @@ class Rma(models.Model):
             "view_type": "form",
             "view_mode": "form",
             "res_model": "account.move",
-            "views": [(self.env.ref("account.view_move_form").id, "form")],
+            "views": [(self.sudo().env.ref("account.view_move_form").id, "form")],
             "res_id": self.refund_id.id,
         }
 
     def action_view_delivery(self):
         """Invoked when 'Delivery' smart button in rma form view is clicked."""
         action = (
-            self.env.ref("stock.action_picking_tree_all")
+            self.sudo().env.ref("stock.action_picking_tree_all")
             .with_context(active_id=self.id)
             .read()[0]
         )
@@ -887,7 +887,7 @@ class Rma(models.Model):
         picking.message_post_with_view(
             "mail.message_origin_link",
             values={"self": picking, "origin": self},
-            subtype_id=self.env.ref("mail.mt_note").id,
+            subtype_id=self.sudo().env.ref("mail.mt_note").id,
         )
         return picking.move_lines
 
@@ -924,7 +924,7 @@ class Rma(models.Model):
         extracted_rma.message_post_with_view(
             "mail.message_origin_link",
             values={"self": extracted_rma, "origin": self},
-            subtype_id=self.env.ref("mail.mt_note").id,
+            subtype_id=self.sudo().env.ref("mail.mt_note").id,
         )
         self.message_post(
             body=_(
@@ -1022,7 +1022,7 @@ class Rma(models.Model):
             picking.message_post_with_view(
                 "mail.message_origin_link",
                 values={"self": picking, "origin": rmas},
-                subtype_id=self.env.ref("mail.mt_note").id,
+                subtype_id=self.sudo().env.ref("mail.mt_note").id,
             )
         rmas_to_return.write({"state": "waiting_return"})
 
@@ -1141,7 +1141,7 @@ class Rma(models.Model):
     # Mail business methods
     def _creation_subtype(self):
         if self.state in ("draft", "confirmed"):
-            return self.env.ref("rma.mt_rma_draft")
+            return self.sudo().env.ref("rma.mt_rma_draft")
         else:
             return super()._creation_subtype()
 
